@@ -1,0 +1,49 @@
+# ==================================================
+# GITIGNORE PRINCIPAL - SOFTWARE
+# ==================================================
+
+# ===== ARCHIVOS SENSIBLES (NUNCA SUBIR) =====
+# Archivos con credenciales y configuración sensible
+**/application.properties
+**/application-*.properties
+**/.env
+**/.env.*
+!**/.env.example
+
+# Carpetas con archivos subidos por usuarios
+**/uploads/
+**/uploads/**
+
+# Logs con información potencialmente sensible
+*.log
+logs/
+
+# ===== CONFIGURACIONES IDE/EDITOR =====
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# ===== SISTEMA OPERATIVO =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== BACKEND (Spring Boot) - unamba-market =====
+unamba-market/backend/target/
+unamba-market/backend/.mvn/
+unamba-market/backend/mvnw
+unamba-market/backend/mvnw.cmd
+
+# ===== FRONTEND (Angular) - unamba-market =====
+unamba-market/frontend/node_modules/
+unamba-market/frontend/dist/
+unamba-market/frontend/.angular/
+
+# ===== TEMPORALES =====
+*.tmp
+*.temp
+*.bak
+*.swp
+*~

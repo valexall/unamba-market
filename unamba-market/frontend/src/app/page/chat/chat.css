@@ -1,0 +1,21 @@
+.chat-container {
+    height: calc(100dvh - 80px); 
+    border-radius: var(--radius-lg);
+    background: white;
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        height: calc(100dvh - 60px);
+        margin-top: 10px !important;
+        border-radius: 0;
+    }
+
+    .chat-list-col.hidden-on-mobile {
+        display: none !important;
+    }
+
+    .chat-area.hidden-on-mobile {
+        display: none !important;
+    }
+}

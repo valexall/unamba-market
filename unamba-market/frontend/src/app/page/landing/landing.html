@@ -1,0 +1,156 @@
+
+<nav class="navbar navbar-expand-lg fixed-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center fw-bold text-primary" 
+           routerLink="/"
+           aria-label="UNAMBA Market - Inicio">
+            <img src="assets/logo-unamba.png" 
+                 alt="Logo UNAMBA" 
+                 height="40" 
+                 class="me-2"
+                 loading="eager"
+                 onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/9/99/Escudo_UNAMBA.png';">
+            <span class="d-none d-sm-inline">UNAMBA Market</span>
+            <span class="d-inline d-sm-none">UNAMBA</span>
+        </a>
+        
+        <button class="navbar-toggler border-0" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#navbarNav"
+                aria-controls="navbarNav" 
+                aria-expanded="false" 
+                aria-label="Abrir menú de navegación">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="ms-auto d-flex flex-column flex-lg-row gap-2 align-items-stretch align-items-lg-center">
+                <a routerLink="/login" 
+                   class="btn btn-outline-primary rounded-pill fw-bold">
+                    Ingresar
+                </a>
+                <a routerLink="/home" 
+                   class="btn btn-primary rounded-pill fw-bold">
+                    Explorar
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+<section class="hero-section" role="banner">
+    <div class="hero-bg-shape" aria-hidden="true"></div>
+
+    <div class="container">
+        <div class="row align-items-center">
+
+            <div class="col-lg-6 order-2 order-lg-1">
+                <div class="hero-content">
+                    <h1 class="hero-title animate-fade-up">
+                        Tu mercado universitario
+                        <span class="hero-highlight d-block">Inteligente y Seguro</span>
+                    </h1>
+                    
+                    <p class="hero-subtitle animate-fade-up delay-1">
+                        La plataforma oficial para estudiantes de la UNAMBA. Compra libros, vende materiales, 
+                        encuentra repuestos y conecta con tu comunidad en segundos.
+                    </p>
+                    
+                    <div class="cta-buttons animate-fade-up delay-2">
+                        <a routerLink="/home" 
+                           class="btn-cta btn-primary-cta"
+                           aria-label="Empezar a usar UNAMBA Market">
+                            Empezar Ahora 
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </a>
+
+                        <button (click)="scrollToSection('features')"
+                                class="btn-cta btn-secondary-cta"
+                                type="button"
+                                aria-label="Ver características de la plataforma">
+                            Saber más 
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    <div class="stats-container animate-fade-up delay-3">
+                        <div class="stat-item">
+                            <h3 class="mb-1">+500</h3>
+                            <small class="text-muted">Estudiantes</small>
+                        </div>
+                        <div class="stat-item">
+                            <h3 class="mb-1">+1.2k</h3>
+                            <small class="text-muted">Productos</small>
+                        </div>
+                        <div class="stat-item">
+                            <h3 class="mb-1">24/7</h3>
+                            <small class="text-muted">Disponible</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-lg-6 order-1 order-lg-2">
+                <div class="hero-image-container">
+                    <img src="assets/landing-hero-image.png"
+                         alt="Interfaz de UNAMBA Market mostrando productos universitarios" 
+                         class="hero-image"
+                         loading="eager">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="features-section" role="region" aria-labelledby="features-title">
+    <div class="container">
+        <h2 id="features-title" class="section-title">¿Qué puedes hacer aquí?</h2>
+
+        <div class="features-grid">
+            <article class="feature-card" role="article" aria-labelledby="feature-buy">
+                <div class="icon-box bg-blue" aria-hidden="true">
+                    <i class="bi bi-cart-check-fill"></i>
+                </div>
+                <h3 id="feature-buy" class="feature-title">Compra Fácil</h3>
+                <p class="feature-desc">
+                    Encuentra materiales de estudio, libros y herramientas a precios de estudiante,
+                    directamente de tus compañeros.
+                </p>
+            </article>
+
+            <article class="feature-card" role="article" aria-labelledby="feature-sell">
+                <div class="icon-box bg-orange" aria-hidden="true">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <h3 id="feature-sell" class="feature-title">Vende Rápido</h3>
+                <p class="feature-desc">
+                    ¿Ya no usas ese libro? ¿Tienes uniformes guardados? Publícalos en segundos y
+                    gana dinero extra.
+                </p>
+            </article>
+
+            <article class="feature-card" role="article" aria-labelledby="feature-chat">
+                <div class="icon-box bg-green" aria-hidden="true">
+                    <i class="bi bi-chat-text-fill"></i>
+                </div>
+                <h3 id="feature-chat" class="feature-title">Chat Directo</h3>
+                <p class="feature-desc">
+                    Comunícate de forma segura con vendedores y compradores sin salir de la
+                    plataforma. Acuerda la entrega en el campus.
+                </p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- ✅ Footer -->
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <p class="text-muted">
+            © 2025 UNAMBA Market. Desarrollado por Estudiantes de Ingeniería Informática.
+        </p>
+    </div>
+</footer>

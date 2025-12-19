@@ -1,1 +1,32 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+:root {
+    --primary: #0d47a1;       
+    --secondary: #f59e0b;     
+    --bg-body: #f3f4f6;       
+    --bg-card: #ffffff;       
+    --text-dark: #111827;     
+    --text-muted: #6b7280;    
+    --border-color: #e5e7eb;  
+    
+    --sidebar-width: 280px;
+    --header-height: 70px;
+    --border-radius: 12px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+html, body {
+    height: 100%;
+    background-color: var(--bg-body);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+    color: var(--text-dark);
+}
+
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+a { text-decoration: none; }

@@ -1,0 +1,78 @@
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+
+    <a class="navbar-brand" routerLink="/home">
+      <img src="assets/logo-unamba.png" alt="UNAMBA" height="32" class="brand-icon"
+        onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/9/99/Escudo_UNAMBA.png'">
+      <span>UNAMBA Market</span>
+    </a>
+
+    <button class="navbar-toggler border-0 p-0" type="button" (click)="toggleMenu()">
+      <span class="navbar-toggler-icon"
+        [style.background-image]="isMenuOpen ? 'url(\'data:image/svg+xml,...x-lg...\')' : ''">
+        <i class="bi" [ngClass]="isMenuOpen ? 'bi-x-lg' : 'bi-list'" style="font-size: 1.5rem;"></i>
+      </span>
+    </button>
+
+    <div class="collapse navbar-collapse" [class.show]="isMenuOpen">
+
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0" *ngIf="isLoggedIn">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home" routerLinkActive="active" (click)="closeMenu()">
+            <i class="bi bi-shop-window"></i> Explorar
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/chat" routerLinkActive="active" (click)="closeMenu()">
+            <i class="bi bi-chat-dots"></i> Mensajes
+            <span *ngIf="unreadCount > 0" class="badge-notification">{{unreadCount}}</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto align-items-lg-center" *ngIf="isLoggedIn">
+
+        <li class="nav-item me-lg-2">
+          <a class="nav-link position-relative" routerLink="/chat" routerLinkActive="active" (click)="closeMenu()">
+            <i class="bi bi-chat-dots-fill"></i>
+            <span class="d-lg-none ms-2">Mensajes</span>
+
+            <span *ngIf="unreadCount > 0" class="badge-notification animate-bounce">
+              {{unreadCount}}
+            </span>
+          </a>
+        </li>
+
+        <li class="nav-item d-none d-lg-block mx-2 text-muted opacity-25">|</li>
+
+        <li class="nav-item dropdown">
+          <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+            <img [src]="'https://ui-avatars.com/api/?name=' + userName + '&background=0D47A1&color=fff'"
+              class="user-avatar shadow-sm" alt="Perfil">
+
+            <div class="d-flex flex-column d-lg-none">
+              <span class="fw-bold">{{userName}}</span>
+              <small class="text-muted">Estudiante</small>
+            </div>
+
+            <button class="btn btn-logout btn-sm rounded-pill px-3 ms-auto ms-lg-0" (click)="logout()">
+              <i class="bi bi-box-arrow-right"></i> <span class="d-lg-none">Cerrar Sesión</span>
+            </button>
+          </div>
+        </li>
+      </ul>
+
+      <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0" *ngIf="!isLoggedIn">
+        <a routerLink="/login" class="btn btn-outline-primary rounded-pill px-4 fw-bold" (click)="closeMenu()">
+          Ingresar
+        </a>
+        <a routerLink="/register" class="btn btn-primary rounded-pill px-4 fw-bold" (click)="closeMenu()">
+          Registrarse
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="mobile-backdrop" [class.show]="isMenuOpen" (click)="closeMenu()"></div>
+</nav>

@@ -1,0 +1,93 @@
+<div class="auth-wrapper">
+    
+    <div class="auth-image-side">
+        <div class="auth-quote">
+            <p class="quote-text">"La mejor manera de predecir el futuro es creándolo. Únete a la red académica más grande."</p>
+            <div class="d-flex align-items-center mt-3">
+                <div class="bg-white rounded-circle p-1 me-2" style="width: 30px; height: 30px;">
+                    <img src="assets/logo-unamba.png" class="w-100 h-100 object-fit-contain">
+                </div>
+                <p class="mb-0 text-white fw-bold small">Comunidad UNAMBA</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-form-side">
+        <div class="form-content">
+            
+            <div class="auth-header">
+                <a routerLink="/" class="auth-logo text-decoration-none">
+                    <img src="assets/logo-unamba.png" alt="UNAMBA" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/9/99/Escudo_UNAMBA.png'">
+                </a>
+                <h1 class="auth-title">Crear una cuenta</h1>
+                <p class="auth-subtitle">Completa el formulario para comenzar a vender.</p>
+            </div>
+
+            <form [formGroup]="formRegister" (ngSubmit)="register()">
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" formControlName="firstName" class="form-control" placeholder="Ej: Juan">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Apellido</label>
+                            <input type="text" formControlName="lastName" class="form-control" placeholder="Ej: Pérez">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Correo Institucional</label>
+                    <input type="email" formControlName="email" class="form-control" placeholder="usuario@unamba.edu.pe">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Celular</label>
+                    <input type="tel" formControlName="cellphone" class="form-control" placeholder="987 654 321">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" formControlName="password" class="form-control" placeholder="Mínimo 6 caracteres">
+                </div>
+
+                <div class="form-group mt-4">
+                    <label class="form-label">Foto de Perfil (Opcional)</label>
+                    <div class="photo-upload-container" (click)="fileInput.click()">
+                        <input #fileInput type="file" (change)="onFileSelect($event)" accept="image/*" hidden>
+                        
+                        <div class="preview-circle">
+                            <img *ngIf="imagePreview" [src]="imagePreview">
+                            <i *ngIf="!imagePreview" class="bi bi-person-fill text-muted fs-4"></i>
+                        </div>
+                        
+                        <div class="upload-text">
+                            <h6>{{ imagePreview ? 'Cambiar foto' : 'Subir una foto' }}</h6>
+                            <p>JPG o PNG, máx 2MB</p>
+                        </div>
+                        
+                        <i class="bi bi-cloud-arrow-up-fill ms-auto text-primary fs-4"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" [disabled]="formRegister.invalid || isLoading">
+                    <span *ngIf="!isLoading">Registrarse</span>
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span *ngIf="isLoading">Procesando...</span>
+                    <i *ngIf="!isLoading" class="bi bi-arrow-right"></i>
+                </button>
+
+            </form>
+
+            <div class="auth-footer">
+                ¿Ya tienes una cuenta? 
+                <a routerLink="/login" class="link-primary">Inicia Sesión</a>
+            </div>
+
+        </div>
+    </div>
+</div>

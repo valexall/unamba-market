@@ -1,0 +1,172 @@
+/* === CONFIGURACIÓN BASE === */
+:host {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+.navbar {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px); /* Efecto vidrio */
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    padding: 0.75rem 0;
+    transition: all 0.3s ease;
+}
+
+/* === LOGO === */
+.navbar-brand {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary, #0d47a1) !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.5px;
+}
+
+.brand-icon {
+    filter: drop-shadow(0 2px 4px rgba(13, 71, 161, 0.2));
+}
+
+/* === ENLACES DE NAVEGACIÓN === */
+.nav-link {
+    font-weight: 600;
+    color: #4b5563 !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 50px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: var(--primary, #0d47a1) !important;
+    background-color: #f3f4f6;
+}
+
+.nav-link.active {
+    color: var(--primary, #0d47a1) !important;
+    background-color: #e0e7ff; 
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+}
+
+/* === NOTIFICACIONES (Globito Rojo) === */
+.badge-notification {
+    background-color: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25em 0.6em;
+    border-radius: 50%;
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+    animation: bounceIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); }
+    80% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* === BOTÓN VENDER === */
+.btn-sell {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white !important;
+    padding: 0.5rem 1.25rem !important;
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+    border: none;
+}
+
+.btn-sell:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(245, 158, 11, 0.4);
+    background-color: white;
+}
+
+/* === PERFIL USUARIO === */
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+}
+
+.btn-logout {
+    color: #ef4444 !important;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+}
+
+.btn-logout:hover {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+}
+
+/* === RESPONSIVIDAD (MÓVIL) === */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        position: fixed;
+        top: 70px; 
+        left: 0;
+        right: 0;
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        max-height: 80vh;
+        overflow-y: auto;
+        transform: translateY(-150%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: block; 
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .navbar-collapse.show {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .navbar-nav {
+        gap: 0.5rem;
+    }
+
+    .nav-link {
+        padding: 12px 16px !important;
+        border-radius: 12px;
+        justify-content: flex-start;
+    }
+
+    .badge-notification {
+        position: static;
+        margin-left: auto;
+    }
+
+    .mobile-backdrop {
+        position: fixed;
+        top: 70px; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1010;
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+    }
+    .mobile-backdrop.show {
+        opacity: 1;
+        visibility: visible;
+    }
+}

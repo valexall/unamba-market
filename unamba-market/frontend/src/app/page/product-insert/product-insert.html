@@ -1,0 +1,107 @@
+<app-navbar></app-navbar>
+
+<div class="container mt-5 mb-5">
+    <div class="card shadow mx-auto" style="max-width: 700px;">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <i class="bi bi-tag-fill me-2"></i> Publicar un Artículo
+        </div>
+        <div class="card-body p-4">
+            <form [formGroup]="formProduct" (ngSubmit)="onSubmit()">
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Título del anuncio</label>
+                    <input type="text" class="form-control" formControlName="name"
+                        placeholder="Ej: Laptop Lenovo i5, Libro de Cálculo...">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Precio (S/)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">S/</span>
+                            <input type="number" class="form-control" formControlName="price" placeholder="0.00">
+                        </div>
+                    </div>
+
+<div class="col-md-6 mb-3">
+    <label class="form-label fw-bold">Categorías / Etiquetas</label>
+    
+    <div class="tags-input-wrapper" (click)="tagInput.focus()">
+        <span class="tag-pill" *ngFor="let tag of selectedTags; let i = index">
+            #{{tag}}
+            <span class="remove-tag" (click)="removeTag(i)">×</span>
+        </span>
+
+        <input #tagInput 
+               type="text" 
+               class="tag-input" 
+               [formControl]="tagControl"
+               (keydown.enter)="addTag($event)"
+               (keydown.backspace)="removeLastTag($event)"
+               list="categoryOptions" 
+               placeholder="Escribe y presiona Enter...">
+    </div>
+
+    <datalist id="categoryOptions">
+        <option *ngFor="let c of listCategory" [value]="c.name"></option>
+    </datalist>
+    
+    <div class="form-text text-muted">Ej: "Libros", "Ingeniería", "Barato". Máximo 5 etiquetas.</div>
+</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Condición del producto</label>
+                    <select class="form-select" formControlName="productCondition">
+                        <option value="USADO">Usado</option>
+                        <option value="COMO_NUEVO">Como Nuevo (Poco uso)</option>
+                        <option value="NUEVO">Totalmente Nuevo</option>
+                        <option value="REPUESTO">Para Repuesto / Malogrado</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Descripción detallada</label>
+                    <textarea class="form-control" rows="5" formControlName="description"
+                        placeholder="Detalles del estado, autor del libro, tiempo de uso, etc."></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Galería de Fotos</label>
+
+                    <input #fileInput id="fileInput" type="file" class="d-none" (change)="onFileSelect($event)"
+                        accept="image/*" multiple>
+
+                    <div class="upload-container mb-3" (click)="fileInput.click()">
+                        <i class="bi bi-images upload-icon"></i>
+                        <div class="upload-text">Agregar Fotos</div>
+                        <div class="upload-hint">Puedes subir varias a la vez</div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-3" *ngIf="previews.length > 0">
+                        <div class="position-relative" *ngFor="let url of previews; let i = index">
+
+                            <img [src]="url" class="img-thumbnail"
+                                style="width: 120px; height: 120px; object-fit: cover;">
+
+                            <span *ngIf="i === 0"
+                                class="badge bg-warning text-dark position-absolute top-0 start-0 m-1">Portada</span>
+
+                            <button type="button" class="btn-remove-mini" (click)="removeImage(i)">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg" [disabled]="formProduct.invalid">
+                        <i class="bi bi-send-fill me-2"></i> Publicar Ahora
+                    </button>
+                    <a routerLink="/home" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

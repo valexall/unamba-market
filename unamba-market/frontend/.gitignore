@@ -1,17 +1,32 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# ==================================================
+# FRONTEND - Angular
+# ==================================================
 
-# Compiled output
+# ===== ARCHIVOS SENSIBLES - NUNCA SUBIR =====
+# Archivos de entorno con URLs/keys
+src/environments/environment.ts
+src/environments/environment.prod.ts
+.env
+.env.*
+!.env.example
+
+# ===== COMPILACIÓN =====
 /dist
 /tmp
 /out-tsc
 /bazel-out
 
-# Node
+# ===== NODE =====
 /node_modules
 npm-debug.log
 yarn-error.log
+package-lock.json
 
-# IDEs and editors
+# ===== ANGULAR =====
+/.angular/cache
+.sass-cache/
+
+# ===== IDEs y Editores =====
 .idea/
 .project
 .classpath
@@ -28,9 +43,7 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
+# ===== TESTING =====
 /connect.lock
 /coverage
 /libpeerconnection.log
@@ -38,6 +51,16 @@ testem.log
 /typings
 __screenshots__/
 
-# System files
+# ===== LOGS =====
+*.log
+logs/
+
+# ===== SISTEMA =====
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# ===== TEMPORALES =====
+*.tmp
+*.bak
+*~

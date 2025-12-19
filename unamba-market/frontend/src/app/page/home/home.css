@@ -1,0 +1,304 @@
+/* === DESIGN SYSTEM: UNAMBA OFICIAL === */
+:root {
+
+    --primary: #0d47a1;        
+    --primary-dark: #002171;  
+    --primary-light: #e3f2fd; 
+    
+    /* --- TEXTOS --- */
+    --text-main: #1e293b;      
+    --text-body: #475569;     
+    --text-muted: #94a3b8;     
+    
+    /* --- FONDOS --- */
+    --bg-body: #f1f5f9;
+    --bg-card: #ffffff;
+    
+    /* --- DIMENSIONES --- */
+    --sidebar-width: 260px;
+    --header-height: 70px;
+    --radius-card: 16px;
+    --radius-pill: 50px;
+    
+    /* --- SOMBRAS --- */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-float: 0 10px 15px -3px rgba(13, 71, 161, 0.2); 
+}
+
+:host {
+    display: block;
+    height: 100vh;
+    background-color: var(--bg-body);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+    overflow: hidden;
+}
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    height: 100%;
+}
+
+/* =========================================
+   1. SIDEBAR
+   ========================================= */
+.sidebar {
+    background-color: var(--bg-card);
+    border-right: 1px solid #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    z-index: 50;
+    height: 100%;
+}
+
+.brand-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.25rem; font-weight: 800; color: var(--primary);
+    text-decoration: none; margin-bottom: 2rem; letter-spacing: -0.5px;
+}
+
+.nav-label {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: #64748b; font-weight: 700; margin-bottom: 0.75rem; padding-left: 10px;
+    margin-top: 1rem;
+}
+
+.nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; margin-bottom: 4px;
+    border-radius: 10px;
+    color: var(--text-body); font-weight: 600; text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.nav-item i {
+    font-size: 1.2rem; color: #94a3b8; transition: color 0.2s;
+}
+
+.nav-item:hover {
+    background-color: #f8fafc; color: var(--primary);
+}
+.nav-item:hover i { color: var(--primary); }
+
+.nav-item.active {
+    background-color: var(--primary-light); color: var(--primary);
+}
+.nav-item.active i { color: var(--primary); }
+
+
+/* =========================================
+   2. MAIN AREA
+   ========================================= */
+.main-area {
+    display: flex; flex-direction: column; height: 100%; overflow: hidden;
+    position: relative; background-color: var(--bg-body);
+}
+
+.top-header {
+    height: var(--header-height);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    background: transparent;
+    flex-shrink: 0;
+}
+
+.search-wrapper { flex: 1; max-width: 600px; position: relative; }
+
+.search-input {
+    width: 100%; height: 48px;
+    padding: 0 20px 0 45px;
+    border-radius: var(--radius-pill);
+    border: 1px solid #cbd5e1;
+    background: var(--bg-card);
+    font-size: 0.95rem; color: var(--text-main);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.15);
+}
+
+.search-icon {
+    position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+    color: #94a3b8; font-size: 1.1rem;
+}
+
+.header-actions { display: flex; align-items: center; gap: 1rem; }
+
+.btn-icon {
+    background: var(--bg-card); border: 1px solid #e2e8f0;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-body); cursor: pointer; transition: all 0.2s;
+}
+.btn-icon:hover { color: var(--primary); border-color: var(--primary); }
+
+
+/* =========================================
+   3. CONTENIDO & FILTROS
+   ========================================= */
+.content-scroll {
+    flex: 1; overflow-y: auto; padding: 0 2rem 5rem;
+}
+
+.page-title { 
+    font-size: 1.5rem; font-weight: 800; color: var(--text-main); 
+    margin-bottom: 1.5rem; letter-spacing: -0.5px;
+}
+
+.category-filters {
+    display: flex; gap: 10px; padding-bottom: 1.5rem; overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.filter-chip {
+    padding: 8px 20px;
+    background: var(--bg-card);
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-pill);
+    font-size: 0.9rem; font-weight: 600; color: var(--text-body);
+    white-space: nowrap; cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-chip:hover {
+    transform: translateY(-2px); border-color: var(--primary); color: var(--primary);
+}
+
+.filter-chip.active {
+    background-color: var(--primary);
+    color: white; border-color: var(--primary);
+    box-shadow: 0 4px 10px rgba(13, 71, 161, 0.3);
+}
+
+
+/* =========================================
+   4. GRID PRODUCTOS
+   ========================================= */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.product-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-float);
+    border-color: #cbd5e1;
+}
+
+.card-image-box {
+    position: relative; aspect-ratio: 4/3; background: #fff;
+    overflow: hidden; border-bottom: 1px solid #f1f5f9;
+}
+
+.card-image-box img {
+    width: 100%; height: 100%; object-fit: contain; padding: 1rem;
+    transition: transform 0.5s ease;
+}
+.product-card:hover img { transform: scale(1.05); }
+
+.btn-wishlist {
+    position: absolute; top: 10px; right: 10px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: white; border: 1px solid #f1f5f9;
+    color: #94a3b8; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s;
+}
+.btn-wishlist:hover { color: #ef4444; border-color: #fecaca; transform: scale(1.1); }
+
+.card-details {
+    padding: 1rem; flex: 1; display: flex; flex-direction: column;
+}
+
+.product-name {
+    font-size: 1rem; font-weight: 700; color: var(--text-main);
+    margin-bottom: 0.25rem; line-height: 1.4;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.product-meta {
+    font-size: 0.8rem; color: #64748b; margin-bottom: 0.75rem;
+}
+
+.product-price {
+    font-size: 1.2rem; font-weight: 800; color: var(--primary);
+    margin-top: auto;
+}
+
+
+/* =========================================
+   5. BOTÓN FLOTANTE (FAB) VENDER - CORREGIDO
+   ========================================= */
+.fab-sell {
+    position: fixed; bottom: 35px; right: 35px;
+    
+
+    background-color: var(--primary); 
+    color: white;
+    
+    padding: 14px 30px; border-radius: var(--radius-pill);
+    font-weight: 700; font-size: 1rem;
+    display: flex; align-items: center; gap: 8px;
+    
+
+    box-shadow: 0 8px 20px rgba(13, 71, 161, 0.4);
+    
+    text-decoration: none; transition: transform 0.2s, background-color 0.2s; 
+    z-index: 100;
+}
+
+.fab-sell:hover { 
+    transform: translateY(-4px);
+    background-color: var(--primary-dark);
+}
+
+
+/* =========================================
+   RESPONSIVIDAD
+   ========================================= */
+.mobile-toggle { display: none; }
+.mobile-overlay { display: none; }
+
+@media (max-width: 992px) {
+    .dashboard-container { grid-template-columns: 1fr; }
+    
+    .sidebar {
+        position: fixed; top: 0; bottom: 0; left: 0;
+        transform: translateX(-100%); transition: transform 0.3s;
+        box-shadow: 5px 0 25px rgba(0,0,0,0.1);
+        width: 280px;
+    }
+    .sidebar.active { transform: translateX(0); }
+    
+    .top-header { padding: 0 1.5rem; gap: 1rem; }
+    .mobile-toggle { display: block; background: none; border: none; font-size: 1.5rem; color: var(--text-main); }
+    
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+    
+    .content-scroll { padding: 0 1rem 6rem; }
+    
+    .mobile-overlay.active {
+        display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; backdrop-filter: blur(2px);
+    }
+}
