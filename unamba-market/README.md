@@ -147,4 +147,4 @@ Este proyecto es parte del curso de desarrollo de software de UNAMBA.
 
 ## 👤 Autores
 
-Desarrollado por estudiantes de UNAMBA.
+@valexall - Valentin Arenaza
