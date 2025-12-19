@@ -39,40 +39,31 @@ public class ProductBusiness {
     @Transactional
     public boolean insert(DtoProduct dto, String sellerEmail, List<MultipartFile> images) {
 
-        // 1. Validar Vendedor
         User seller = userRepository.findByEmail(sellerEmail)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // 2. Procesar Categorías (Tags)
         List<Category> categoriesToSave = new ArrayList<>();
 
         if (dto.getCategoryNames() != null && !dto.getCategoryNames().isEmpty()) {
             for (String catName : dto.getCategoryNames()) {
                 String cleanName = catName.trim();
-                
-                // A. Buscar si ya existe
                 Category category = categoryRepository.findByNameIgnoreCase(cleanName)
                         .orElse(null);
-
-                // B. Si no existe, crearla
                 if (category == null) {
                     category = new Category();
-                    category.setIdCategory(UUID.randomUUID().toString()); // ID manual
+                    category.setIdCategory(UUID.randomUUID().toString());
                     category.setName(cleanName);
                     category.setSlug(cleanName.toLowerCase().replace(" ", "-") + "-" + System.currentTimeMillis());
                     category.setIconCode("bi-tag-fill");
                     category.setCreatedAt(LocalDateTime.now());
                     category.setUpdatedAt(LocalDateTime.now());
-                    
-                    // CORRECCIÓN CLAVE: Usar saveAndFlush para forzar el INSERT inmediato
                     category = categoryRepository.saveAndFlush(category);
                 }
-                
+
                 categoriesToSave.add(category);
             }
         }
 
-        // 3. Crear Producto
         Product entity = new Product();
         entity.setIdProduct(UUID.randomUUID().toString());
         entity.setName(dto.getName());
@@ -83,16 +74,14 @@ public class ProductBusiness {
         entity.setViewCount(0);
 
         entity.setUser(seller);
-        entity.setCategories(categoriesToSave); // Relación Many-to-Many
+        entity.setCategories(categoriesToSave);
 
         entity.setCreatedAt(LocalDateTime.now());
         entity.setUpdatedAt(LocalDateTime.now());
 
         productRepository.save(entity);
-
-        // 4. Procesar Imágenes Múltiples
         if (images != null && !images.isEmpty()) {
-            boolean isFirst = true; // La primera imagen será la portada (Main)
+            boolean isFirst = true;
 
             for (MultipartFile file : images) {
                 if (!file.isEmpty()) {
@@ -102,14 +91,11 @@ public class ProductBusiness {
                     imgEntity.setIdImage(UUID.randomUUID().toString());
                     imgEntity.setProduct(entity);
                     imgEntity.setImageUrl(filename);
-                    imgEntity.setMain(isFirst); // true solo para la primera
+                    imgEntity.setMain(isFirst);
                     imgEntity.setCreatedAt(LocalDateTime.now());
-                    // Asegúrate de que tu entidad ProductImage tenga updatedAt/deletedAt si los agregaste a la BD
-                    // imgEntity.setUpdatedAt(LocalDateTime.now()); 
-
                     imageRepository.save(imgEntity);
 
-                    isFirst = false; // Las siguientes no son portada
+                    isFirst = false;
                 }
             }
         }
@@ -118,7 +104,7 @@ public class ProductBusiness {
     }
 
     public List<DtoProduct> getAll() {
-        List<Product> listEntities = productRepository.findAll();
+        List<Product> listEntities = productRepository.findByStatusOrderByCreatedAtDesc("ACTIVO");
         List<DtoProduct> listDtos = new ArrayList<>();
 
         for (Product entity : listEntities) {
@@ -129,35 +115,25 @@ public class ProductBusiness {
             dto.setPrice(entity.getPrice());
             dto.setStatus(entity.getStatus());
             dto.setProductCondition(entity.getProductCondition());
-
-            // --- Mapeo de Categorías Múltiples ---
             if (entity.getCategories() != null && !entity.getCategories().isEmpty()) {
-                // String para mostrar en tarjeta: "Libros, Apuntes"
                 String catDisplay = entity.getCategories().stream()
                         .map(Category::getName)
                         .collect(Collectors.joining(", "));
-                
+
                 dto.setCategoryName(catDisplay);
-                
-                // Lista para lógica del front
                 dto.setCategoryNames(entity.getCategories().stream()
                         .map(Category::getName)
                         .collect(Collectors.toList()));
             } else {
                 dto.setCategoryName("Sin categoría");
             }
-            // -------------------------------------
-
             dto.setSellerName(entity.getUser().getFirstName() + " " + entity.getUser().getLastName());
             dto.setSellerId(entity.getUser().getIdUser());
-
-            // --- Obtener Imagen Principal ---
             List<ProductImage> images = imageRepository.findByProduct_IdProduct(entity.getIdProduct());
 
             if (images != null && !images.isEmpty()) {
-                // Busca la "Main", o toma la primera por defecto
                 ProductImage mainImage = images.stream()
-                        .filter(ProductImage::isMain) 
+                        .filter(ProductImage::isMain)
                         .findFirst()
                         .orElse(images.get(0));
 
@@ -165,7 +141,6 @@ public class ProductBusiness {
             } else {
                 dto.setImageUrl(null);
             }
-            // --------------------------------
 
             listDtos.add(dto);
         }
@@ -175,7 +150,7 @@ public class ProductBusiness {
     public DtoProduct getById(String idProduct) {
         Product entity = productRepository.findById(idProduct)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-        
+
         DtoProduct dto = new DtoProduct();
         dto.setIdProduct(entity.getIdProduct());
         dto.setName(entity.getName());
@@ -184,40 +159,152 @@ public class ProductBusiness {
         dto.setStatus(entity.getStatus());
         dto.setProductCondition(entity.getProductCondition());
         dto.setViewCount(entity.getViewCount());
-        
-        // Tags
+
         if (entity.getCategories() != null) {
             dto.setCategoryNames(entity.getCategories().stream().map(Category::getName).collect(Collectors.toList()));
             dto.setCategoryName(String.join(", ", dto.getCategoryNames()));
         }
-        
-        // Vendedor
+
         dto.setSellerName(entity.getUser().getFirstName() + " " + entity.getUser().getLastName());
         dto.setSellerId(entity.getUser().getIdUser());
- 
+
         List<ProductImage> images = imageRepository.findByProduct_IdProduct(entity.getIdProduct());
         if (images != null && !images.isEmpty()) {
             dto.setImageUrl(images.get(0).getImageUrl()); // La primera por defecto
-            // Si modificaste DtoProduct para tener List<String> imagesList, aquí lo llenarías.
         }
 
         List<ProductImage> imagesEntities = imageRepository.findByProduct_IdProduct(entity.getIdProduct());
-        
+
         if (imagesEntities != null && !imagesEntities.isEmpty()) {
-            // 1. Setear imagen principal (para la vista rápida en Home)
             ProductImage mainImg = imagesEntities.stream()
-                .filter(img -> img.isMain())
-                .findFirst()
-                .orElse(imagesEntities.get(0));
+                    .filter(img -> img.isMain())
+                    .findFirst()
+                    .orElse(imagesEntities.get(0));
             dto.setImageUrl(mainImg.getImageUrl());
-            
-            // 2. Setear la galería completa (NUEVO)
+
             List<String> imageNames = imagesEntities.stream()
-                .map(ProductImage::getImageUrl)
-                .collect(Collectors.toList());
+                    .map(ProductImage::getImageUrl)
+                    .collect(Collectors.toList());
             dto.setImages(imageNames);
         }
-        
+
         return dto;
+    }
+
+    public List<DtoProduct> getMyProducts(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow();
+        List<Product> listEntities = productRepository.findByUser_IdUser(user.getIdUser());
+
+        List<DtoProduct> listDtos = new ArrayList<>();
+        for (Product entity : listEntities) {
+            DtoProduct dto = new DtoProduct();
+            dto.setIdProduct(entity.getIdProduct());
+            dto.setName(entity.getName());
+            dto.setPrice(entity.getPrice());
+            dto.setStatus(entity.getStatus()); 
+            dto.setProductCondition(entity.getProductCondition());
+            dto.setViewCount(entity.getViewCount());
+            List<ProductImage> images = imageRepository.findByProduct_IdProduct(entity.getIdProduct());
+            if (!images.isEmpty())
+                dto.setImageUrl(images.get(0).getImageUrl());
+
+            listDtos.add(dto);
+        }
+        return listDtos;
+    }
+
+    @Transactional
+    public void updateStatus(String idProduct, String newStatus, String userEmail) {
+        Product product = productRepository.findById(idProduct)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        User user = userRepository.findByEmail(userEmail).orElseThrow();
+        if (!product.getUser().getIdUser().equals(user.getIdUser())) {
+            throw new RuntimeException("No tienes permiso para modificar este producto.");
+        }
+        if (List.of("ACTIVO", "PAUSADO", "VENDIDO", "ELIMINADO").contains(newStatus)) {
+            product.setStatus(newStatus);
+
+            if ("ELIMINADO".equals(newStatus)) {
+                product.setDeletedAt(LocalDateTime.now());
+            } else {
+                product.setDeletedAt(null);
+            }
+
+            product.setUpdatedAt(LocalDateTime.now());
+            productRepository.save(product);
+        } else {
+            throw new RuntimeException("Estado no válido: " + newStatus);
+        }
+    }
+
+    @Transactional
+    public boolean update(String idProduct, DtoProduct dto, String userEmail, List<MultipartFile> images) {
+        Product product = productRepository.findById(idProduct)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        // Verificar que el usuario sea el propietario
+        if (!product.getUser().getIdUser().equals(user.getIdUser())) {
+            throw new RuntimeException("No tienes permiso para modificar este producto.");
+        }
+
+        // Actualizar campos básicos
+        product.setName(dto.getName());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setProductCondition(dto.getProductCondition());
+        product.setUpdatedAt(LocalDateTime.now());
+
+        // Actualizar categorías
+        if (dto.getCategoryNames() != null && !dto.getCategoryNames().isEmpty()) {
+            List<Category> categoriesToSave = new ArrayList<>();
+            
+            for (String catName : dto.getCategoryNames()) {
+                String cleanName = catName.trim();
+                Category category = categoryRepository.findByNameIgnoreCase(cleanName)
+                        .orElse(null);
+                if (category == null) {
+                    category = new Category();
+                    category.setIdCategory(UUID.randomUUID().toString());
+                    category.setName(cleanName);
+                    category.setSlug(cleanName.toLowerCase().replace(" ", "-") + "-" + System.currentTimeMillis());
+                    category.setIconCode("bi-tag-fill");
+                    category.setCreatedAt(LocalDateTime.now());
+                    category.setUpdatedAt(LocalDateTime.now());
+                    category = categoryRepository.saveAndFlush(category);
+                }
+                categoriesToSave.add(category);
+            }
+            product.setCategories(categoriesToSave);
+        }
+
+        productRepository.save(product);
+
+        // Agregar nuevas imágenes si se proporcionan
+        if (images != null && !images.isEmpty()) {
+            // Obtener imágenes existentes
+            List<ProductImage> existingImages = imageRepository.findByProduct_IdProduct(idProduct);
+            boolean hasMain = !existingImages.isEmpty();
+            
+            for (MultipartFile file : images) {
+                if (!file.isEmpty()) {
+                    String filename = storageService.store(file);
+                    
+                    ProductImage imgEntity = new ProductImage();
+                    imgEntity.setIdImage(UUID.randomUUID().toString());
+                    imgEntity.setProduct(product);
+                    imgEntity.setImageUrl(filename);
+                    imgEntity.setMain(!hasMain); // La primera nueva imagen es main si no hay ninguna
+                    imgEntity.setCreatedAt(LocalDateTime.now());
+                    imageRepository.save(imgEntity);
+                    
+                    hasMain = true;
+                }
+            }
+        }
+
+        return true;
     }
 }

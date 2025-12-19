@@ -1,5 +1,5 @@
 <div class="dashboard-container">
-    
+
     <div class="mobile-overlay" [class.active]="sidebarOpen" (click)="toggleSidebar()"></div>
 
     <aside class="sidebar" [class.active]="sidebarOpen">
@@ -21,7 +21,7 @@
 
         <div class="nav-section" *ngIf="isLoggedIn">
             <div class="nav-label">Vendedor</div>
-            <a class="nav-item" [class.active]="showMyProducts" (click)="filterMyProducts(); toggleSidebar()">
+            <a routerLink="/inventory" class="nav-item" routerLinkActive="active" (click)="toggleSidebar()">
                 <i class="bi bi-shop"></i> Mis Productos
             </a>
         </div>
@@ -34,7 +34,7 @@
     </aside>
 
     <main class="main-area">
-        
+
         <header class="top-header">
             <button class="mobile-toggle" (click)="toggleSidebar()">
                 <i class="bi bi-list"></i>
@@ -48,18 +48,19 @@
             <div class="header-actions">
                 <button class="btn-icon position-relative">
                     <i class="bi bi-bell"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                    <span
+                        class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
                 </button>
                 <div class="d-none d-md-block" *ngIf="isLoggedIn">
-                    <img [src]="'https://ui-avatars.com/api/?name=' + userName + '&background=0D47A1&color=fff'" 
-                         class="rounded-circle border" width="40" height="40">
+                    <img [src]="'https://ui-avatars.com/api/?name=' + userName + '&background=0D47A1&color=fff'"
+                        class="rounded-circle border" width="40" height="40">
                 </div>
                 <a *ngIf="!isLoggedIn" routerLink="/login" class="btn btn-primary rounded-pill px-4 fw-bold">Login</a>
             </div>
         </header>
 
         <div class="content-scroll">
-            
+
             <div class="d-flex justify-content-between align-items-end mb-4 mt-4">
                 <h1 class="page-title mb-0">
                     {{ showMyProducts ? 'Mis Publicaciones' : 'Explorar Productos' }}
@@ -71,19 +72,18 @@
                 <button class="filter-chip" [class.active]="!selectedCategory" (click)="filterCategory(null)">
                     Todo
                 </button>
-                <button class="filter-chip" *ngFor="let c of listCategory" 
-                        [class.active]="selectedCategory === c.name"
-                        (click)="filterCategory(c.name)">
+                <button class="filter-chip" *ngFor="let c of listCategory" [class.active]="selectedCategory === c.name"
+                    (click)="filterCategory(c.name)">
                     {{ c.name }}
                 </button>
             </div>
 
             <div class="product-grid">
                 <div class="product-card" *ngFor="let p of listProduct" [routerLink]="['/product/detail', p.idProduct]">
-                    
+
                     <div class="card-image-box">
                         <img [src]="getImageUrl(p.imageUrl)" [alt]="p.name" loading="lazy">
-                        
+
                         <button class="btn-wishlist" (click)="$event.stopPropagation(); toggleFavorite(p.idProduct)">
                             <i class="bi bi-heart"></i>
                         </button>
@@ -91,12 +91,12 @@
 
                     <div class="card-details">
                         <h3 class="product-name" [title]="p.name">{{ p.name }}</h3>
-                        
+
                         <div class="product-meta">
                             <span class="badge-condition">{{ p.productCondition }}</span>
                             <span>• {{ p.categoryName || 'General' }}</span>
                         </div>
-                        
+
                         <div class="product-price">
                             S/ {{ p.price | number:'1.0-0' }}
                         </div>
@@ -108,7 +108,8 @@
                 <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="120" class="opacity-50 mb-3">
                 <h3 class="h5 text-muted">No encontramos resultados</h3>
                 <p class="text-muted small">Intenta ajustar los filtros o busca otra cosa.</p>
-                <button class="btn btn-outline-primary rounded-pill mt-2" (click)="filterCategory(null)">Ver Todo</button>
+                <button class="btn btn-outline-primary rounded-pill mt-2" (click)="filterCategory(null)">Ver
+                    Todo</button>
             </div>
 
         </div>

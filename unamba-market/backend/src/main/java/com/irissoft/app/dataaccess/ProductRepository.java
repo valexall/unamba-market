@@ -17,4 +17,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     
     // Búsqueda simple por nombre
     List<Product> findByNameContainingIgnoreCaseAndStatus(String name, String status);
+
+    List<Product> findByStatusOrderByCreatedAtDesc(String status);
+
 }

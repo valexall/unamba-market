@@ -3,7 +3,8 @@
 <div class="container mt-5 mb-5">
     <div class="card shadow mx-auto" style="max-width: 700px;">
         <div class="card-header bg-warning text-dark fw-bold">
-            <i class="bi bi-tag-fill me-2"></i> Publicar un Artículo
+            <i class="bi bi-tag-fill me-2"></i> 
+            {{ isEditMode ? 'Editar Artículo' : 'Publicar un Artículo' }}
         </div>
         <div class="card-body p-4">
             <form [formGroup]="formProduct" (ngSubmit)="onSubmit()">
@@ -96,9 +97,10 @@
 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg" [disabled]="formProduct.invalid">
-                        <i class="bi bi-send-fill me-2"></i> Publicar Ahora
+                        <i [class]="isEditMode ? 'bi bi-check-circle-fill me-2' : 'bi bi-send-fill me-2'"></i> 
+                        {{ isEditMode ? 'Guardar Cambios' : 'Publicar Ahora' }}
                     </button>
-                    <a routerLink="/home" class="btn btn-outline-secondary">Cancelar</a>
+                    <a [routerLink]="isEditMode ? '/inventory' : '/home'" class="btn btn-outline-secondary">Cancelar</a>
                 </div>
 
             </form>

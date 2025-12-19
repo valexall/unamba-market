@@ -1,0 +1,114 @@
+<app-navbar></app-navbar>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Gestión de Inventario</h2>
+            <p class="text-muted">Administra tus publicaciones y su disponibilidad.</p>
+        </div>
+        <a routerLink="/product/create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Publicar Nuevo
+        </a>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div *ngIf="!isLoading && products.length === 0" class="text-center py-5 bg-light rounded">
+        <i class="bi bi-box-seam display-1 text-muted"></i>
+        <h3 class="mt-3">No tienes productos activos</h3>
+        <p>¡Empieza a vender tus cosas hoy mismo!</p>
+    </div>
+
+    <div class="card shadow-sm border-0" *ngIf="!isLoading && products.length > 0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Producto</th>
+                        <th>Precio</th>
+                        <th>Estado</th>
+                        <th>Vistas</th>
+                        <th class="text-end pe-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of products">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <img [src]="getImageUrl(p.imageUrl)" class="rounded border me-3"
+                                    style="width: 48px; height: 48px; object-fit: cover;">
+                                <div>
+                                    <div class="fw-bold text-truncate" style="max-width: 200px;">{{p.name}}</div>
+                                    <small class="text-muted">{{p.productCondition}}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="fw-bold">S/ {{p.price | number:'1.2-2'}}</td>
+                        <td>
+                            <span class="badge rounded-pill px-3 py-2" [ngClass]="{
+                                    'bg-success': p.status === 'ACTIVO',
+                                    'bg-warning text-dark': p.status === 'PAUSADO',
+                                    'bg-secondary': p.status === 'VENDIDO'
+                                }">
+                                {{p.status}}
+                            </span>
+                        </td>
+                        <td>
+                            <i class="bi bi-eye text-muted"></i> {{p.viewCount || 0}}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm rounded-circle" type="button"
+                                    data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li>
+                                        <h6 class="dropdown-header">Gestionar</h6>
+                                    </li>
+
+                                    <li>
+                                        <button class="dropdown-item" (click)="editProduct(p.idProduct)">
+                                            <i class="bi bi-pencil me-2"></i> Editar
+                                        </button>
+                                    </li>
+
+                                    <li *ngIf="p.status === 'ACTIVO'">
+                                        <button class="dropdown-item text-warning"
+                                            (click)="changeStatus(p.idProduct, 'PAUSADO')">
+                                            <i class="bi bi-pause-circle me-2"></i> Pausar
+                                        </button>
+                                    </li>
+                                    <li *ngIf="p.status === 'PAUSADO'">
+                                        <button class="dropdown-item text-success"
+                                            (click)="changeStatus(p.idProduct, 'ACTIVO')">
+                                            <i class="bi bi-play-circle me-2"></i> Activar
+                                        </button>
+                                    </li>
+                                    <li *ngIf="p.status !== 'VENDIDO'">
+                                        <button class="dropdown-item text-secondary"
+                                            (click)="changeStatus(p.idProduct, 'VENDIDO')">
+                                            <i class="bi bi-bag-check me-2"></i> Marcar Vendido
+                                        </button>
+                                    </li>
+
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item text-danger"
+                                            (click)="changeStatus(p.idProduct, 'ELIMINADO')">
+                                            <i class="bi bi-trash me-2"></i> Eliminar
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
