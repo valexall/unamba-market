@@ -1,95 +1,131 @@
 <app-navbar></app-navbar>
 
-<div class="container mt-4 chat-container shadow rounded overflow-hidden bg-white">
-    <div class="row h-100 g-0">
+<div class="container-fluid container-lg mt-lg-4 p-0 p-lg-3">
+    <div class="chat-container shadow-sm">
         
-        <div class="col-md-4 border-end chat-list-col">
-            <div class="p-3 bg-light border-bottom">
-                <h5 class="mb-0">Mis Mensajes</h5>
+        <div class="chat-list-col" [class.hidden-on-mobile]="showMobileChatView">
+            
+            <div class="search-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-secondary">Mensajes</h5>
+                <button class="btn btn-sm btn-icon rounded-circle hover-bg">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
             </div>
             
-            <div class="list-group list-group-flush overflow-auto" style="height: 500px;">
+            <div class="conversations-list">
                 <button *ngFor="let c of conversations" 
-                        class="list-group-item list-group-item-action d-flex align-items-center p-3"
+                        class="conversation-item d-flex align-items-center"
                         [class.active]="selectedConversation?.idConversation === c.idConversation"
                         (click)="selectChat(c)">
                     
-                    <img [src]="getImageUrl(c.otherUserProfileImage)" class="rounded-circle me-3" width="50" height="50">
+                    <div class="position-relative">
+                        <img [src]="getImageUrl(c.otherUserProfileImage)" 
+                             class="rounded-circle me-3 border" width="50" height="50" 
+                             style="object-fit: cover;">
+                        <span *ngIf="c.unreadCount > 0" class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle"></span>
+                    </div>
                     
                     <div class="flex-grow-1 overflow-hidden">
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 text-truncate" [class.fw-bold]="c.unreadCount > 0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="mb-0 text-truncate fw-semibold text-dark">
                                 {{c.otherUserName}}
                             </h6>
-                            
-                            <div class="d-flex align-items-center">
-                                <small class="text-muted me-2" style="font-size: 0.7rem;">
-                                    {{c.lastMessageAt | date:'shortTime'}}
-                                </small>
-                                <span *ngIf="c.unreadCount > 0" class="badge bg-success rounded-pill" style="font-size: 0.65rem;">
-                                    {{c.unreadCount}}
-                                </span>
-                            </div>
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                                {{c.lastMessageAt | date:'shortTime'}}
+                            </small>
                         </div>
 
-                        <small class="text-muted d-block text-truncate mt-1">
-                            <i class="bi bi-tag-fill me-1"></i> {{c.productName}}
-                        </small>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted text-truncate d-block" style="max-width: 180px;">
+                                <i class="bi bi-tag-fill text-primary me-1"></i> {{c.productName}}
+                            </small>
+                            <span *ngIf="c.unreadCount > 0" class="badge bg-success rounded-pill">
+                                {{c.unreadCount}}
+                            </span>
+                        </div>
                     </div>
                 </button>
 
-                <div *ngIf="conversations.length === 0" class="p-4 text-center text-muted">
-                    No tienes conversaciones.
+                <div *ngIf="conversations.length === 0" class="text-center p-5 text-muted">
+                    <i class="bi bi-chat-square-heart display-4 mb-3 d-block opacity-25"></i>
+                    <p>No tienes mensajes aún.</p>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-8 d-flex flex-column chat-area">
+        <div class="chat-area" [class.hidden-on-mobile]="!showMobileChatView">
             
-            <div class="p-3 border-bottom d-flex align-items-center bg-white shadow-sm" style="z-index: 10;" *ngIf="selectedConversation">
-                <h6 class="mb-0">
-                    Conversando con <strong>{{selectedConversation.otherUserName}}</strong> 
-                    sobre <span class="badge bg-secondary">{{selectedConversation.productName}}</span>
-                </h6>
-            </div>
-
-            <div class="flex-grow-1 p-4 overflow-auto bg-light" *ngIf="selectedConversation; else noChat">
-                <div *ngFor="let m of messages" class="mb-3 d-flex"
-                     [ngClass]="{'justify-content-end': m.idSender !== selectedConversation.otherUserId}">
+            <ng-container *ngIf="selectedConversation; else noChatSelected">
+                
+                <div class="chat-header shadow-sm">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-sm btn-light me-2 d-md-none rounded-circle" (click)="backToList()">
+                            <i class="bi bi-arrow-left"></i>
+                        </button>
+                        
+                        <img [src]="getImageUrl(selectedConversation.otherUserProfileImage)" 
+                             class="rounded-circle me-3 border" width="40" height="40" style="object-fit: cover;">
+                        
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{selectedConversation.otherUserName}}</h6>
+                            <small class="text-muted" style="font-size: 0.8rem;">
+                                Interesado en: {{selectedConversation.productName}}
+                            </small>
+                        </div>
+                    </div>
                     
-                    <div class="card border-0 shadow-sm" 
-                         [ngClass]="{'bg-primary text-white': m.idSender !== selectedConversation.otherUserId, 'bg-white text-dark': m.idSender === selectedConversation.otherUserId}"
-                         style="max-width: 75%; border-radius: 15px;">
-                        <div class="card-body py-2 px-3">
-                            <p class="mb-1">{{m.content}}</p>
-                            <div class="d-flex justify-content-end align-items-center">
-                                <small class="opacity-75" style="font-size: 0.65rem;">
-                                    {{m.createdAt | date:'shortTime'}}
-                                </small>
-                                <i *ngIf="m.idSender !== selectedConversation.otherUserId" 
-                                   class="bi bi-check-all ms-1" 
-                                   [ngClass]="{'text-info': m.isRead, 'text-white-50': !m.isRead}"></i>
-                            </div>
+                    <div>
+                        <button class="btn btn-light rounded-circle text-muted"><i class="bi bi-telephone"></i></button>
+                        <button class="btn btn-light rounded-circle text-muted ms-1"><i class="bi bi-three-dots-vertical"></i></button>
+                    </div>
+                </div>
+
+                <div class="messages-content" #scrollContainer>
+                    <div *ngFor="let m of messages" 
+                         class="message-bubble shadow-sm"
+                         [ngClass]="{'msg-outgoing': m.idSender === myId, 'msg-incoming': m.idSender !== myId}">
+                        
+                        <span class="text-break">{{m.content}}</span>
+                        
+                        <div class="msg-time">
+                            {{m.createdAt | date:'HH:mm'}}
+                            <i *ngIf="m.idSender === myId" 
+                               class="bi bi-check-all" 
+                               [ngClass]="{'text-primary': m.read, 'text-muted': !m.read}"
+                               style="font-size: 1rem;"></i>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="p-3 border-top bg-white" *ngIf="selectedConversation">
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Escribe un mensaje..." 
-                           [(ngModel)]="newMessage" (keyup.enter)="send()">
-                    <button class="btn btn-primary" (click)="send()">
-                        <i class="bi bi-send-fill"></i>
-                    </button>
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <button class="btn btn-link text-muted p-0 me-2"><i class="bi bi-emoji-smile fs-5"></i></button>
+                        
+                        <input type="text" 
+                               class="chat-input" 
+                               placeholder="Escribe un mensaje..." 
+                               [(ngModel)]="newMessage" 
+                               (keyup.enter)="send()"
+                               autocomplete="off">
+                        
+                        <button class="btn btn-primary rounded-circle ms-2 d-flex align-items-center justify-content-center" 
+                                style="width: 40px; height: 40px;"
+                                (click)="send()" 
+                                [disabled]="!newMessage.trim()">
+                            <i class="bi bi-send-fill fs-6"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <ng-template #noChat>
+            </ng-container>
+
+            <ng-template #noChatSelected>
                 <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
-                    <i class="bi bi-chat-dots display-1 mb-3"></i>
-                    <p>Selecciona una conversación para empezar.</p>
+                    <div class="bg-white p-4 rounded-circle shadow-sm mb-3">
+                        <i class="bi bi-chat-dots-fill display-4 text-primary"></i>
+                    </div>
+                    <h4 class="fw-light">UNAMBA Market Chat</h4>
+                    <p class="small">Selecciona una conversación para comenzar.</p>
                 </div>
             </ng-template>
 

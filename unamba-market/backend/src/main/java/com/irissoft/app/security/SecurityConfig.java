@@ -29,18 +29,18 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
-			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-			.csrf(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/auth/**").permitAll()
-				.requestMatchers(HttpMethod.GET, "/product/**").permitAll()
-				.requestMatchers("/uploads/**").permitAll()
-				.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll() 
-				.requestMatchers("/public/**").permitAll() 
-				.anyRequest().authenticated()
-			)
-			.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.csrf(AbstractHttpConfigurer::disable)
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/auth/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/product/**").permitAll()
+						.requestMatchers("/uploads/**").permitAll()
+						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+						.requestMatchers("/public/**").permitAll()
+						.requestMatchers("/ws-market/**").permitAll()
+						.anyRequest().authenticated())
+				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

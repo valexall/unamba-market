@@ -5,11 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.irissoft.app.dataaccess.ConversationRepository;
 import com.irissoft.app.dataaccess.MessageRepository;
 import com.irissoft.app.dataaccess.ProductRepository;
@@ -24,31 +22,24 @@ import com.irissoft.app.entity.User;
 @Service
 public class ChatBusiness {
 
-    @Autowired
-    private ConversationRepository conversationRepository;
-    @Autowired
-    private MessageRepository messageRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ProductRepository productRepository;
+    @Autowired private ConversationRepository conversationRepository;
+    @Autowired private MessageRepository messageRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private ProductRepository productRepository;
 
     @Transactional
-    public void sendMessage(String senderEmail, String productId, String receiverId, String content) {
+    public DtoMessage sendMessage(String senderEmail, String productId, String receiverId, String content) {
         User sender = userRepository.findByEmail(senderEmail).orElseThrow();
         User receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new RuntimeException("Receptor no encontrado"));
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        // Validar lógica: No chatear contigo mismo
         if (sender.getIdUser().equals(receiverId)) {
             throw new RuntimeException("No puedes iniciar un chat contigo mismo.");
         }
 
-        // Buscar chat existente (idéntico al anterior pero con paquetes irissoft)
-        Optional<Conversation> existingConv = conversationRepository.findExistingChat(productId, sender.getIdUser(),
-                receiverId);
+        Optional<Conversation> existingConv = conversationRepository.findExistingChat(productId, sender.getIdUser(), receiverId);
         if (existingConv.isEmpty()) {
             existingConv = conversationRepository.findExistingChat(productId, receiverId, sender.getIdUser());
         }
@@ -79,6 +70,17 @@ public class ChatBusiness {
         msg.setUpdatedAt(LocalDateTime.now());
 
         messageRepository.save(msg);
+
+        // RETORNAR DTO PARA EL SOCKET
+        DtoMessage dto = new DtoMessage();
+        dto.setIdMessage(msg.getIdMessage());
+        dto.setIdConversation(conversation.getIdConversation());
+        dto.setIdSender(sender.getIdUser());
+        dto.setContent(msg.getContent());
+        dto.setRead(msg.isRead());
+        dto.setCreatedAt(msg.getCreatedAt());
+        
+        return dto;
     }
 
     public List<DtoConversation> getMyConversations(String userEmail) {
@@ -91,12 +93,13 @@ public class ChatBusiness {
             dto.setIdConversation(c.getIdConversation());
             dto.setIdProduct(c.getProduct().getIdProduct());
             dto.setProductName(c.getProduct().getName());
-            dto.setLastMessageAt(c.getLastMessageAt());
+            dto.setProductImageUrl(null); // Puedes agregar lógica de imagen si quieres
+            
             User otherUser = c.getBuyer().getIdUser().equals(me.getIdUser()) ? c.getSeller() : c.getBuyer();
-            dto.setOtherUserProfileImage(otherUser.getProfileImage());
             dto.setOtherUserId(otherUser.getIdUser());
             dto.setOtherUserName(otherUser.getFirstName() + " " + otherUser.getLastName());
             dto.setOtherUserProfileImage(otherUser.getProfileImage());
+            
             dto.setLastMessageAt(c.getLastMessageAt());
             long unread = messageRepository.countUnreadMessages(c.getIdConversation(), me.getIdUser());
             dto.setUnreadCount((int) unread);
@@ -105,12 +108,12 @@ public class ChatBusiness {
         return dtos;
     }
 
-    @Transactional // Importante
+    @Transactional
     public List<DtoMessage> getMessages(String conversationId, String userEmail) {
         User me = userRepository.findByEmail(userEmail).orElseThrow();
-
         List<Message> entities = messageRepository.findByConversation_IdConversationOrderByCreatedAtAsc(conversationId);
         List<DtoMessage> dtos = new ArrayList<>();
+        
         for (Message m : entities) {
             if (!m.getSender().getIdUser().equals(me.getIdUser()) && !m.isRead()) {
                 m.setRead(true);
@@ -118,6 +121,7 @@ public class ChatBusiness {
             }
             DtoMessage dto = new DtoMessage();
             dto.setIdMessage(m.getIdMessage());
+            dto.setIdConversation(m.getConversation().getIdConversation());
             dto.setContent(m.getContent());
             dto.setIdSender(m.getSender().getIdUser());
             dto.setCreatedAt(m.getCreatedAt());
@@ -132,4 +136,13 @@ public class ChatBusiness {
         return messageRepository.countTotalUnread(me.getIdUser());
     }
 
+    public long getUnreadCountByUserId(String userId) {
+        return messageRepository.countTotalUnread(userId);
+    }
+
+    public String getUserIdByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return user.getIdUser();
+    }
 }
