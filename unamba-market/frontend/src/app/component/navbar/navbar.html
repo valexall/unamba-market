@@ -32,6 +32,50 @@
 
       <ul class="navbar-nav ms-auto align-items-lg-center" *ngIf="isLoggedIn">
 
+        <!-- Dropdown de Notificaciones (solo desktop) -->
+        <li class="nav-item dropdown d-none d-lg-block me-2">
+          <button class="btn btn-link nav-link position-relative p-0 border-0" 
+                  type="button" 
+                  id="notificationsDropdown" 
+                  data-bs-toggle="dropdown" 
+                  aria-expanded="false"
+                  (click)="loadNotifications()">
+            <i class="bi bi-bell-fill"></i>
+            <span *ngIf="notificationUnreadCount > 0" 
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{notificationUnreadCount}}
+            </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 320px; max-height: 400px; overflow-y: auto;">
+            <li class="dropdown-header d-flex justify-content-between align-items-center">
+              <span class="fw-bold">Notificaciones</span>
+              <button *ngIf="notifications.length > 0" 
+                      class="btn btn-sm btn-link text-decoration-none p-0" 
+                      (click)="markAllAsRead()">
+                Marcar todas
+              </button>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li *ngIf="notifications.length === 0" class="px-3 py-4 text-center text-muted">
+              <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+              No tienes notificaciones
+            </li>
+            <li *ngFor="let notif of notifications">
+              <a class="dropdown-item" [class.bg-light]="!notif.isRead" (click)="handleNotificationClick(notif)" style="cursor: pointer;">
+                <div class="d-flex">
+                  <i class="bi" [ngClass]="getNotificationIcon(notif.type)" style="font-size: 1.2rem;"></i>
+                  <div class="ms-2 flex-grow-1">
+                    <div class="fw-semibold small">{{notif.title}}</div>
+                    <small class="text-muted" style="font-size: 0.75rem;">{{notif.message}}</small>
+                    <div><small class="text-muted" style="font-size: 0.7rem;">{{notif.time}}</small></div>
+                  </div>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Mensajes (mobile y desktop) -->
         <li class="nav-item me-lg-2">
           <a class="nav-link position-relative" routerLink="/chat" routerLinkActive="active" (click)="closeMenu()">
             <i class="bi bi-chat-dots-fill"></i>
@@ -45,18 +89,60 @@
 
         <li class="nav-item d-none d-lg-block mx-2 text-muted opacity-25">|</li>
 
-        <li class="nav-item dropdown">
-          <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+        <!-- Menú de Usuario -->
+        <li class="nav-item dropdown d-none d-lg-block">
+          <button class="btn btn-link p-0 border-0" 
+                  type="button" 
+                  id="userMenuDropdown" 
+                  data-bs-toggle="dropdown" 
+                  aria-expanded="false">
+            <img [src]="'https://ui-avatars.com/api/?name=' + userName + '&background=0D47A1&color=fff'"
+                 class="user-avatar shadow-sm" alt="Perfil" style="cursor: pointer;">
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li class="dropdown-header">
+              <div class="fw-bold">{{userName}}</div>
+              <small class="text-muted">Estudiante UNAMBA</small>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="#" (click)="$event.preventDefault(); goToProfile()">
+                <i class="bi bi-person me-2"></i> Mi Perfil
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/inventory">
+                <i class="bi bi-shop me-2"></i> Mis Productos
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/chat">
+                <i class="bi bi-chat-dots me-2"></i> Mensajes
+                <span *ngIf="unreadCount > 0" class="badge bg-danger ms-2">{{unreadCount}}</span>
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger" href="#" (click)="$event.preventDefault(); logout()">
+                <i class="bi bi-box-arrow-left me-2"></i> Cerrar Sesión
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Mobile: Avatar y botón logout -->
+        <li class="nav-item d-lg-none">
+          <div class="d-flex align-items-center gap-3 mt-3">
             <img [src]="'https://ui-avatars.com/api/?name=' + userName + '&background=0D47A1&color=fff'"
               class="user-avatar shadow-sm" alt="Perfil">
 
-            <div class="d-flex flex-column d-lg-none">
+            <div class="d-flex flex-column">
               <span class="fw-bold">{{userName}}</span>
               <small class="text-muted">Estudiante</small>
             </div>
 
-            <button class="btn btn-logout btn-sm rounded-pill px-3 ms-auto ms-lg-0" (click)="logout()">
-              <i class="bi bi-box-arrow-right"></i> <span class="d-lg-none">Cerrar Sesión</span>
+            <button class="btn btn-logout btn-sm rounded-pill px-3 ms-auto" (click)="logout()">
+              <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
             </button>
           </div>
         </li>

@@ -1,5 +1,3 @@
--- Script SQL para crear la tabla de refresh tokens
--- Ejecutar este script en la base de datos dbmarketunamba
 
 CREATE TABLE IF NOT EXISTS trefresh_token (
     idToken VARCHAR(36) PRIMARY KEY,
