@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.irissoft.app.business.ProductBusiness;
 import com.irissoft.app.controller.reqresp.RequestProductInsert;
 import com.irissoft.app.controller.reqresp.ResponseProductGetAll;
+import com.irissoft.app.controller.reqresp.ResponseProductGetAllPaginated;
 import com.irissoft.app.controller.reqresp.ResponseProductInsert;
 import com.irissoft.app.dto.DtoProduct;
 import com.irissoft.app.generic.ResponseGeneric;
@@ -59,6 +60,22 @@ public class ProductController {
         ResponseProductGetAll response = new ResponseProductGetAll();
         try {
             response.setListProduct(this.productBusiness.getAll());
+            response.success();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.error();
+            response.listMessage.add(e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<ResponseProductGetAllPaginated> getAllPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        ResponseProductGetAllPaginated response = new ResponseProductGetAllPaginated();
+        try {
+            response.setData(this.productBusiness.getAllPaginated(page, size));
             response.success();
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {

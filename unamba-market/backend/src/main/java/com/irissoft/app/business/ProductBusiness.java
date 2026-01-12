@@ -7,6 +7,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +19,7 @@ import com.irissoft.app.dataaccess.ProductImageRepository;
 import com.irissoft.app.dataaccess.ProductRepository;
 import com.irissoft.app.dataaccess.UserRepository;
 import com.irissoft.app.dto.DtoProduct;
+import com.irissoft.app.dto.PageResponse;
 import com.irissoft.app.entity.Category;
 import com.irissoft.app.entity.Product;
 import com.irissoft.app.entity.ProductImage;
@@ -105,6 +109,29 @@ public class ProductBusiness {
 
     public List<DtoProduct> getAll() {
         List<Product> listEntities = productRepository.findByStatusOrderByCreatedAtDesc("ACTIVO");
+        return convertToDtoList(listEntities);
+    }
+
+    // Nuevo método con paginación
+    public PageResponse<DtoProduct> getAllPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findByStatusOrderByCreatedAtDesc("ACTIVO", pageable);
+        
+        List<DtoProduct> dtoList = convertToDtoList(productPage.getContent());
+        
+        return new PageResponse<>(
+            dtoList,
+            productPage.getNumber(),
+            productPage.getSize(),
+            productPage.getTotalElements(),
+            productPage.getTotalPages(),
+            productPage.isLast(),
+            productPage.isFirst()
+        );
+    }
+
+    // Método auxiliar para convertir lista de entidades a DTOs
+    private List<DtoProduct> convertToDtoList(List<Product> listEntities) {
         List<DtoProduct> listDtos = new ArrayList<>();
 
         for (Product entity : listEntities) {

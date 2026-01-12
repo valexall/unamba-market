@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -11,6 +11,13 @@ export class ProductService {
 
   getAll(): Observable<any> {
     return this.http.get(`${this.url}/getall`);
+  }
+
+  getAllPaginated(page: number = 0, size: number = 12): Observable<any> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get(`${this.url}/paginated`, { params });
   }
 
   insert(formData: FormData): Observable<any> {

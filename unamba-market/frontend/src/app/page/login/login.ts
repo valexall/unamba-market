@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../api/auth.service';
 import { CommonModule } from '@angular/common';
 
@@ -14,16 +14,21 @@ import { CommonModule } from '@angular/common';
 export class Login {
   formLogin: FormGroup;
   isLoading: boolean = false;
+  returnUrl: string = '/home';
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.formLogin = this.formBuilder.group({
       'email': ['', [Validators.required, Validators.email]],
       'password': ['', Validators.required]
     });
+
+    // Obtener la URL a la que intentaba acceder
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
   }
 
   login(): void {
@@ -33,7 +38,7 @@ export class Login {
       this.authService.login(this.formLogin.value).subscribe({
         next: (resp) => {
           this.authService.saveSession(resp);
-          this.router.navigate(['/home']);
+          this.router.navigateByUrl(this.returnUrl);
         },
         error: (err) => {
           this.isLoading = false;

@@ -21,6 +21,14 @@ export class Home implements OnInit, OnDestroy {
   allProducts: any[] = [];
   listCategory: any[] = [];
   
+  // Paginación
+  currentPage: number = 0;
+  pageSize: number = 12;
+  totalPages: number = 0;
+  totalElements: number = 0;
+  isLastPage: boolean = false;
+  isFirstPage: boolean = true;
+  
   apiUrl = environment.apiUrl;
   isLoggedIn: boolean = false;
   userName: string | null = '';
@@ -70,13 +78,54 @@ export class Home implements OnInit, OnDestroy {
         this.listCategory = resp.listCategory || [];
     });
 
-    this.productService.getAll().subscribe((resp: any) => {
-        this.listProduct = resp.listProduct || [];
-        this.allProducts = resp.listProduct || [];
+    this.loadProducts();
+  }
+
+  loadProducts(page: number = 0) {
+    this.productService.getAllPaginated(page, this.pageSize).subscribe((resp: any) => {
+        if (resp.data) {
+            this.listProduct = resp.data.content || [];
+            this.allProducts = resp.data.content || [];
+            this.currentPage = resp.data.pageNumber;
+            this.totalPages = resp.data.totalPages;
+            this.totalElements = resp.data.totalElements;
+            this.isLastPage = resp.data.last;
+            this.isFirstPage = resp.data.first;
+        }
     });
   }
 
-  // ... (El resto de métodos: filterCategory, filterMyProducts, toggleSidebar, etc. siguen IGUAL) ...
+  nextPage() {
+    if (!this.isLastPage) {
+        this.loadProducts(this.currentPage + 1);
+    }
+  }
+
+  previousPage() {
+    if (!this.isFirstPage) {
+        this.loadProducts(this.currentPage - 1);
+    }
+  }
+
+  goToPage(page: number) {
+    this.loadProducts(page);
+  }
+
+  get pageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    let start = Math.max(0, this.currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(this.totalPages, start + maxVisible);
+    
+    if (end - start < maxVisible) {
+        start = Math.max(0, end - maxVisible);
+    }
+    
+    for (let i = start; i < end; i++) {
+        pages.push(i);
+    }
+    return pages;
+  }
   
   filterCategory(categoryName: string | null) {
       this.selectedCategory = categoryName;
@@ -110,6 +159,9 @@ export class Home implements OnInit, OnDestroy {
   getImageUrl(filename: string): string {
       return filename ? `${this.apiUrl}/uploads/${filename}` : 'assets/no-image.png'; 
   }
+
+  // Exponer Math para usar en template
+  Math = Math;
 
   handleSellAction() {
       if (this.isLoggedIn) {

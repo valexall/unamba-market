@@ -19,10 +19,20 @@ export class AuthService {
     return this.http.post(`${this.url}/register`, formData);
   }
 
+  refreshToken(): Observable<any> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    return this.http.post(`${this.url}/refresh-token`, { refreshToken });
+  }
 
   saveSession(response: any): void {
     localStorage.setItem('token', response.token);
     localStorage.setItem('role', response.role);
+    
+    // Guardar refresh token
+    if (response.refreshToken) {
+      localStorage.setItem('refreshToken', response.refreshToken);
+    }
+    
     // Guardamos nombre y foto si vienen
     if (response.firstName) localStorage.setItem('firstName', response.firstName);
     if (response.profileImage) localStorage.setItem('profileImage', response.profileImage);
@@ -43,7 +53,15 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.clear();
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      // Llamar al endpoint de logout para revocar el token
+      this.http.post(`${this.url}/logout`, { refreshToken }).subscribe({
+        complete: () => localStorage.clear()
+      });
+    } else {
+      localStorage.clear();
+    }
   }
 
   isLoggedIn(): boolean {
@@ -52,6 +70,14 @@ export class AuthService {
 
   getUserId(): string | null {
     return localStorage.getItem('userId');
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem('refreshToken');
   }
 
   private decodeToken(token: string): string | null {

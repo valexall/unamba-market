@@ -1,6 +1,8 @@
 package com.irissoft.app.dataaccess;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,5 +21,13 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     List<Product> findByNameContainingIgnoreCaseAndStatus(String name, String status);
 
     List<Product> findByStatusOrderByCreatedAtDesc(String status);
+
+    // Métodos con paginación
+    Page<Product> findByStatusOrderByCreatedAtDesc(String status, Pageable pageable);
+    
+    Page<Product> findByUser_IdUser(String idUser, Pageable pageable);
+    
+    @Query("SELECT p FROM Product p JOIN p.categories c WHERE c.idCategory = :idCategory AND p.status = :status")
+    Page<Product> findByCategoryIdAndStatus(@Param("idCategory") String idCategory, @Param("status") String status, Pageable pageable);
 
 }

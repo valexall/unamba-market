@@ -7,16 +7,33 @@ import { ProductDetail } from './page/product-detail/product-detail/product-deta
 import { Chat } from './page/chat/chat';
 import { Register } from './page/register/register';
 import { Inventory } from './page/inventory/inventory';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     { path: '', component: Landing },
     { path: 'home', component: Home },
     { path: 'login', component: Login },
-    { path: 'product/create', component: ProductInsert },
-    { path: 'product/detail/:id', component: ProductDetail },
-    { path: 'chat', component: Chat },
     { path: 'register', component: Register },
-    { path: 'product/edit/:id', component: ProductInsert },
-    { path: 'inventory', component: Inventory },
+    { 
+        path: 'product/create', 
+        component: ProductInsert,
+        canActivate: [authGuard]
+    },
+    { 
+        path: 'product/edit/:id', 
+        component: ProductInsert,
+        canActivate: [authGuard]
+    },
+    { path: 'product/detail/:id', component: ProductDetail },
+    { 
+        path: 'chat', 
+        component: Chat,
+        canActivate: [authGuard]
+    },
+    { 
+        path: 'inventory', 
+        component: Inventory,
+        canActivate: [authGuard]
+    },
     { path: '**', redirectTo: '' },
 ];
