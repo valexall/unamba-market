@@ -130,6 +130,25 @@ public class ProductBusiness {
         );
     }
 
+    // Búsqueda por nombre con paginación
+    public PageResponse<DtoProduct> searchProducts(String searchTerm, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productRepository.findByNameContainingIgnoreCaseAndStatusOrderByCreatedAtDesc(
+            searchTerm, "ACTIVO", pageable);
+        
+        List<DtoProduct> dtoList = convertToDtoList(productPage.getContent());
+        
+        return new PageResponse<>(
+            dtoList,
+            productPage.getNumber(),
+            productPage.getSize(),
+            productPage.getTotalElements(),
+            productPage.getTotalPages(),
+            productPage.isLast(),
+            productPage.isFirst()
+        );
+    }
+
     // Método auxiliar para convertir lista de entidades a DTOs
     private List<DtoProduct> convertToDtoList(List<Product> listEntities) {
         List<DtoProduct> listDtos = new ArrayList<>();

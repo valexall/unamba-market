@@ -20,6 +20,9 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     // Búsqueda simple por nombre
     List<Product> findByNameContainingIgnoreCaseAndStatus(String name, String status);
 
+    // Búsqueda por nombre con paginación
+    Page<Product> findByNameContainingIgnoreCaseAndStatusOrderByCreatedAtDesc(String name, String status, Pageable pageable);
+
     List<Product> findByStatusOrderByCreatedAtDesc(String status);
 
     // Métodos con paginación

@@ -85,6 +85,23 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ResponseProductGetAllPaginated> searchProducts(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        ResponseProductGetAllPaginated response = new ResponseProductGetAllPaginated();
+        try {
+            response.setData(this.productBusiness.searchProducts(q, page, size));
+            response.success();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.error();
+            response.listMessage.add(e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ResponseProductGetAll> getById(@PathVariable String id) {
         ResponseProductGetAll response = new ResponseProductGetAll();

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../api/product.service';
 import { CategoryService } from '../../api/category.service';
@@ -12,7 +13,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
@@ -41,6 +42,10 @@ export class Home implements OnInit, OnDestroy {
   
   showMyProducts: boolean = false;
   myUserId: string | null = '';
+  
+  // Variables de búsqueda
+  searchTerm: string = '';
+  isSearching: boolean = false;
 
   constructor(
     private productService: ProductService,
@@ -82,7 +87,31 @@ export class Home implements OnInit, OnDestroy {
   }
 
   loadProducts(page: number = 0) {
-    this.productService.getAllPaginated(page, this.pageSize).subscribe((resp: any) => {
+    if (this.isSearching && this.searchTerm.trim()) {
+      this.performSearch(page);
+    } else {
+      this.productService.getAllPaginated(page, this.pageSize).subscribe((resp: any) => {
+          if (resp.data) {
+              this.listProduct = resp.data.content || [];
+              this.allProducts = resp.data.content || [];
+              this.currentPage = resp.data.pageNumber;
+              this.totalPages = resp.data.totalPages;
+              this.totalElements = resp.data.totalElements;
+              this.isLastPage = resp.data.last;
+              this.isFirstPage = resp.data.first;
+          }
+      });
+    }
+  }
+
+  performSearch(page: number = 0) {
+    if (!this.searchTerm.trim()) {
+      this.clearSearch();
+      return;
+    }
+    
+    this.isSearching = true;
+    this.productService.searchProducts(this.searchTerm, page, this.pageSize).subscribe((resp: any) => {
         if (resp.data) {
             this.listProduct = resp.data.content || [];
             this.allProducts = resp.data.content || [];
@@ -91,8 +120,29 @@ export class Home implements OnInit, OnDestroy {
             this.totalElements = resp.data.totalElements;
             this.isLastPage = resp.data.last;
             this.isFirstPage = resp.data.first;
+            this.selectedCategory = null;
         }
     });
+  }
+
+  onSearchInput(event: any) {
+    this.searchTerm = event.target.value;
+    if (!this.searchTerm.trim()) {
+      this.clearSearch();
+    }
+  }
+
+  onSearchKeyPress(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.performSearch();
+    }
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    this.isSearching = false;
+    this.selectedCategory = null;
+    this.loadProducts();
   }
 
   nextPage() {
@@ -130,6 +180,9 @@ export class Home implements OnInit, OnDestroy {
   filterCategory(categoryName: string | null) {
       this.selectedCategory = categoryName;
       this.showMyProducts = false;
+      this.isSearching = false;
+      this.searchTerm = '';
+      
       if (categoryName) {
           this.listProduct = this.allProducts.filter(p => 
               p.categoryNames && p.categoryNames.includes(categoryName)

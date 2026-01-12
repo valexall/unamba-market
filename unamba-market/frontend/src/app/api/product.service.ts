@@ -20,6 +20,14 @@ export class ProductService {
     return this.http.get(`${this.url}/paginated`, { params });
   }
 
+  searchProducts(searchTerm: string, page: number = 0, size: number = 12): Observable<any> {
+    const params = new HttpParams()
+      .set('q', searchTerm)
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get(`${this.url}/search`, { params });
+  }
+
   insert(formData: FormData): Observable<any> {
     return this.http.post(`${this.url}/insert`, formData);
   }
