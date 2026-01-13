@@ -83,13 +83,18 @@ export class ProfileComponent implements OnInit {
 
     this.userService.updateProfile(this.formProfile.value, this.selectedFile || undefined)
       .subscribe({
-        next: () => {
+        next: (response: any) => {
           this.isSaving = false;
           this.activeTab = 'info';
-          this.loadProfile(); // Recargar datos frescos
-          // Actualizar nombre en navbar si cambió
+          // Actualizar nombre en localStorage si cambió
           const newName = this.formProfile.get('firstName')?.value;
           if (newName) localStorage.setItem('firstName', newName);
+          // Actualizar foto de perfil en localStorage si cambió
+          if (response.profile?.profileImage) {
+            localStorage.setItem('profileImage', response.profile.profileImage);
+          }
+          this.loadProfile(); // Recargar datos frescos
+          window.dispatchEvent(new Event('storage')); // Notificar a otros componentes
         },
         error: (err) => {
           console.error(err);
@@ -100,6 +105,6 @@ export class ProfileComponent implements OnInit {
 
   getAvatarUrl(): string {
     return this.imagePreview || 
-           (this.profile?.profileImage ? `${this.apiUrl}/uploads/${this.profile.profileImage}` : 'assets/avatar-placeholder.png');
+           (this.profile?.profileImage ? `${this.apiUrl}/uploads/${this.profile.profileImage}` : '/assets/no-image.png');
   }
 }

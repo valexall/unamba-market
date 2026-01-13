@@ -43,6 +43,7 @@ export class Home implements OnInit, OnDestroy {
   
   showMyProducts: boolean = false;
   myUserId: string | null = '';
+  profileImage: string | null = null;
   
   // Variables de búsqueda
   searchTerm: string = '';
@@ -65,6 +66,7 @@ export class Home implements OnInit, OnDestroy {
     if(this.isLoggedIn) {
         this.userName = localStorage.getItem('firstName');
         this.myUserId = localStorage.getItem('userId');
+        this.profileImage = localStorage.getItem('profileImage');
     }
   }
 
@@ -72,6 +74,9 @@ export class Home implements OnInit, OnDestroy {
     this.loadData();
     
     if (this.isLoggedIn) {
+        // Inicializar WebSocket para notificaciones en tiempo real
+        this.chatService.initializeWebSocket();
+        
         // Suscribirse al contador de mensajes no leídos
         this.notifSub = this.chatService.unreadCount$.subscribe(count => {
             this.unreadCount = count;
@@ -79,11 +84,23 @@ export class Home implements OnInit, OnDestroy {
         
         // Iniciar polling de notificaciones
         this.notificationService.startPolling();
+
+        // Escuchar cambios en localStorage para actualizar foto de perfil
+        window.addEventListener('storage', this.handleStorageChange.bind(this));
+    }
+  }
+
+  handleStorageChange(event: StorageEvent) {
+    if (event.key === 'profileImage') {
+      this.profileImage = localStorage.getItem('profileImage');
+    } else if (event.key === 'firstName') {
+      this.userName = localStorage.getItem('firstName');
     }
   }
 
   ngOnDestroy(): void {
       if (this.notifSub) this.notifSub.unsubscribe();
+      window.removeEventListener('storage', this.handleStorageChange.bind(this));
   }
 
   loadData() {
@@ -221,6 +238,13 @@ export class Home implements OnInit, OnDestroy {
       return filename ? `${this.apiUrl}/uploads/${filename}` : 'assets/no-image.png'; 
   }
 
+  getProfileImageUrl(): string {
+    if (this.profileImage) {
+      return `${this.apiUrl}/uploads/${this.profileImage}`;
+    }
+    return `https://ui-avatars.com/api/?name=${this.userName}&background=0D47A1&color=fff`;
+  }
+
   // Exponer Math para usar en template
   Math = Math;
 
@@ -244,9 +268,21 @@ export class Home implements OnInit, OnDestroy {
   }
 
   logout() {
+      // Detener servicios
       this.notificationService.stopPolling();
+      this.chatService.disconnect();
+      
+      // Limpiar listeners
+      if (this.notifSub) this.notifSub.unsubscribe();
+      window.removeEventListener('storage', this.handleStorageChange.bind(this));
+      
+      // Cerrar sesión y limpiar localStorage
       this.authService.logout();
-      window.location.reload(); 
+      
+      // Redirigir y recargar
+      this.router.navigate(['/landing']).then(() => {
+        window.location.reload();
+      });
   }
 
   loadNotifications() {

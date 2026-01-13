@@ -1,142 +1,202 @@
-/* Zona de carga moderna */
-.upload-container {
-    position: relative;
-    border: 2px dashed #ced4da;
-    border-radius: 15px;
-    padding: 30px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background-color: #f8f9fa;
+:host {
+    display: block;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    /* Importante: Dejamos espacio al final para que la barra no tape el contenido */
+    padding-bottom: 100px; 
 }
 
-.upload-container:hover {
-    border-color: #ff6b00; 
-    background-color: #fff8f0;
+.page-title {
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.5px;
 }
 
-.upload-icon {
-    font-size: 3rem;
-    color: #6c757d;
-    margin-bottom: 10px;
+/* === BARRA DE ACCIÓN FIJA (STICKY FOOTER) === */
+.sticky-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem 0;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
 }
 
-.upload-text {
-    font-weight: 600;
-    color: #495057;
-}
-
-.upload-hint {
-    font-size: 0.8rem;
-    color: #868e96;
-}
-
-.image-preview-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
-}
-
-.img-preview {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.btn-remove-img {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    background-color: #dc3545;
-    color: white;
+/* === CARD GENERAL === */
+.form-card {
     border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    background: white;
+}
+
+/* === GRID DE FOTOS (Multi-imagen) === */
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    margin-top: 1rem;
+}
+
+.upload-box {
+    aspect-ratio: 1;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    background-color: #f8fafc;
+    transition: all 0.2s;
+    color: #64748b;
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.upload-box:hover {
+    background-color: #e3f2fd;
+    border-color: #0d47a1;
+    color: #0d47a1;
+}
+
+.photo-thumb {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: white;
+}
+
+.photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
     transition: transform 0.2s;
 }
 
-.btn-remove-img:hover {
-    transform: scale(1.1);
-    background-color: #c82333;
-}
+.btn-remove:hover { transform: scale(1.1); }
 
-.btn-remove-mini {
+.main-photo-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: red;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(13, 71, 161, 0.8);
     color: white;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 0.65rem;
+    text-align: center;
+    padding: 2px 0;
+}
+
+.empty-upload-area {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 3rem 1rem;
+    text-align: center;
+    background-color: #f8fafc;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.2s;
 }
 
-.btn-remove-mini:hover {
-    transform: scale(1.1);
+.empty-upload-area:hover {
+    border-color: #0d47a1;
+    background-color: #e3f2fd;
 }
 
-/* Contenedor de Tags */
-.tags-input-wrapper {
-    border: 1px solid #ced4da;
-    border-radius: 0.375rem;
-    padding: 0.375rem 0.75rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    background-color: white;
-    min-height: 45px;
+/* === SELECTOR CONDICIÓN === */
+.condition-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
 }
 
-.tags-input-wrapper:focus-within {
-    border-color: #86b7fe;
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+@media(min-width: 768px) {
+    .condition-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
-/* La burbuja del tag */
-.tag-pill {
-    background-color: #e9ecef;
-    color: #495057;
-    border-radius: 50px;
-    padding: 2px 10px;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    font-weight: 500;
-}
-
-.tag-pill .remove-tag {
-    margin-left: 8px;
+.condition-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.75rem;
     cursor: pointer;
-    color: #dc3545;
-    font-weight: bold;
-    font-size: 1rem;
+    text-align: center;
+    background: white;
+    transition: all 0.2s;
 }
 
-.tag-pill .remove-tag:hover {
-    color: #a71d2a;
+.condition-card:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
 }
 
-/* El input real (sin borde) */
+.condition-card.active {
+    background-color: #e3f2fd;
+    border-color: #0d47a1;
+    color: #0d47a1;
+    box-shadow: 0 0 0 1px #0d47a1;
+}
+
+/* === TAGS === */
+.tags-wrapper {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.5rem;
+    display: flex; flex-wrap: wrap; gap: 6px;
+}
+
+.tags-wrapper:focus-within {
+    border-color: #0d47a1;
+    box-shadow: 0 0 0 4px rgba(13, 71, 161, 0.1);
+}
+
+.tag-badge {
+    background: #e3f2fd;
+    color: #0d47a1;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 5px;
+}
+
 .tag-input {
-    border: none;
-    outline: none;
-    flex: 1;
-    min-width: 150px;
-    background: transparent;
+    border: none; outline: none; flex: 1; min-width: 100px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d47a1;
+    box-shadow: 0 0 0 4px rgba(13, 71, 161, 0.1);
+}
+/* Campos inv�lidos */
+.form-control.ng-invalid.ng-touched,
+.form-control.ng-invalid.ng-dirty {
+    border-color: #dc3545 !important;
+}
+
+.form-control.ng-invalid.ng-touched:focus,
+.form-control.ng-invalid.ng-dirty:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1) !important;
+}
+
+textarea.form-control.ng-invalid.ng-touched {
+    border-color: #dc3545 !important;
 }

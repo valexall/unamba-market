@@ -159,6 +159,6 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   getImageUrl(filename: string): string {
-    return filename ? `${this.apiUrl}/uploads/${filename}` : 'assets/avatar-placeholder.png';
+    return filename ? `${this.apiUrl}/uploads/${filename}` : '/assets/no-image.png';
   }
 }

@@ -96,7 +96,7 @@
                   id="userMenuDropdown" 
                   data-bs-toggle="dropdown" 
                   aria-expanded="false">
-            <img [src]="'https://ui-avatars.com/api/?name=' + userName + '&background=0D47A1&color=fff'"
+            <img [src]="getProfileImageUrl()"
                  class="user-avatar shadow-sm" alt="Perfil" style="cursor: pointer;">
           </button>
           <ul class="dropdown-menu dropdown-menu-end shadow">
@@ -133,7 +133,7 @@
         <!-- Mobile: Avatar y botón logout -->
         <li class="nav-item d-lg-none">
           <div class="d-flex align-items-center gap-3 mt-3">
-            <img [src]="'https://ui-avatars.com/api/?name=' + userName + '&background=0D47A1&color=fff'"
+            <img [src]="getProfileImageUrl()"
               class="user-avatar shadow-sm" alt="Perfil">
 
             <div class="d-flex flex-column">

@@ -5,6 +5,7 @@ import { AuthService } from '../../api/auth.service';
 import { ChatService } from '../../api/chat.service';
 import { NotificationService } from '../../api/notification.service';
 import { Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -16,6 +17,8 @@ import { Subscription } from 'rxjs';
 export class Navbar implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   userName: string | null = '';
+  profileImage: string | null = null;
+  apiUrl = environment.apiUrl;
   unreadCount: number = 0;
   isMenuOpen: boolean = false;
   private notifSub: Subscription | null = null;
@@ -34,6 +37,7 @@ export class Navbar implements OnInit, OnDestroy {
     this.isLoggedIn = this.authService.isLoggedIn();
     if(this.isLoggedIn) {
         this.userName = localStorage.getItem('firstName') || 'Usuario';
+        this.profileImage = localStorage.getItem('profileImage');
     }
   }
 
@@ -59,23 +63,47 @@ export class Navbar implements OnInit, OnDestroy {
       
       // Iniciar polling de notificaciones
       this.notificationService.startPolling();
+
+      // Escuchar cambios en localStorage para actualizar foto de perfil
+      window.addEventListener('storage', this.handleStorageChange.bind(this));
+    }
+  }
+
+  handleStorageChange(event: StorageEvent) {
+    if (event.key === 'profileImage') {
+      this.profileImage = localStorage.getItem('profileImage');
+    } else if (event.key === 'firstName') {
+      this.userName = localStorage.getItem('firstName');
     }
   }
 
   ngOnDestroy(): void {
     if (this.notifSub) this.notifSub.unsubscribe();
     if (this.notificationSub) this.notificationSub.unsubscribe();
+    window.removeEventListener('storage', this.handleStorageChange.bind(this));
   }
 
   toggleMenu() { this.isMenuOpen = !this.isMenuOpen; }
   closeMenu() { this.isMenuOpen = false; }
 
   logout() {
+    // Detener servicios
     this.chatService.disconnect();
     this.notificationService.stopPolling();
+    
+    // Limpiar listeners
+    if (this.notifSub) this.notifSub.unsubscribe();
+    if (this.notificationSub) this.notificationSub.unsubscribe();
+    window.removeEventListener('storage', this.handleStorageChange.bind(this));
+    
+    // Cerrar sesión y limpiar localStorage
     this.authService.logout();
     this.closeMenu();
-    this.router.navigate(['/login']).then(() => window.location.reload());
+    
+    // Redirigir y recargar
+    this.router.navigate(['/landing']).then(() => {
+      window.location.reload();
+    });
   }
   
   loadNotifications() {
@@ -160,5 +188,12 @@ export class Navbar implements OnInit, OnDestroy {
   goToProfile() {
     this.closeMenu();
     this.router.navigate(['/profile']);
+  }
+
+  getProfileImageUrl(): string {
+    if (this.profileImage) {
+      return `${this.apiUrl}/uploads/${this.profileImage}`;
+    }
+    return `https://ui-avatars.com/api/?name=${this.userName}&background=0D47A1&color=fff`;
   }
 }

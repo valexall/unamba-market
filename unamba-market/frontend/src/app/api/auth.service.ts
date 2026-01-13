@@ -54,13 +54,18 @@ export class AuthService {
 
   logout(): void {
     const refreshToken = localStorage.getItem('refreshToken');
+    
+    // Limpiar localStorage inmediatamente
+    localStorage.clear();
+    
+    // Intentar revocar el token en el servidor (no bloqueante)
     if (refreshToken) {
-      // Llamar al endpoint de logout para revocar el token
       this.http.post(`${this.url}/logout`, { refreshToken }).subscribe({
-        complete: () => localStorage.clear()
+        error: () => {
+          // Ignorar errores, el localStorage ya está limpio
+          console.log('Error al revocar token, pero sesión cerrada localmente');
+        }
       });
-    } else {
-      localStorage.clear();
     }
   }
 

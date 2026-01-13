@@ -47,7 +47,6 @@ export class ChatService {
     let myUserId = localStorage.getItem('userId');
     if (myUserId) myUserId = myUserId.replace(/['"]+/g, '');
 
-    console.log('[CHAT SERVICE] Iniciando socket...');
 
     this.stompClient = new Client({
       brokerURL: wsUrl,
@@ -55,14 +54,11 @@ export class ChatService {
       connectHeaders: { Authorization: `Bearer ${token}` },
       
       onConnect: () => {
-        console.log('[CHAT SERVICE] >>> Conectado <<<');
-
         if (myUserId) {
             const topic = `/topic/notifications/${myUserId}`;
             this.stompClient?.subscribe(topic, (msg) => {
                 if (msg.body) {
                     const count = parseInt(msg.body);
-                    console.log('[NOTIFICACIÓN] Nuevo contador:', count);
                     // Actualizar UI inmediatamente
                     this.ngZone.run(() => {
                         this.unreadCount$.next(count);
