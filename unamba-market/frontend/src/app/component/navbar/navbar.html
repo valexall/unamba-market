@@ -16,7 +16,8 @@
 
     <div class="collapse navbar-collapse" [class.show]="isMenuOpen">
 
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0" *ngIf="isLoggedIn">
+      @if (isLoggedIn) {
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link" routerLink="/home" routerLinkActive="active" (click)="closeMenu()">
             <i class="bi bi-shop-window"></i> Explorar
@@ -25,12 +26,16 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="/chat" routerLinkActive="active" (click)="closeMenu()">
             <i class="bi bi-chat-dots"></i> Mensajes
-            <span *ngIf="unreadCount > 0" class="badge-notification">{{unreadCount}}</span>
+            @if (unreadCount > 0) {
+            <span class="badge-notification">{{unreadCount}}</span>
+            }
           </a>
         </li>
       </ul>
+      }
 
-      <ul class="navbar-nav ms-auto align-items-lg-center" *ngIf="isLoggedIn">
+      @if (isLoggedIn) {
+      <ul class="navbar-nav ms-auto align-items-lg-center">
 
         <!-- Dropdown de Notificaciones (solo desktop) -->
         <li class="nav-item dropdown d-none d-lg-block me-2">
@@ -40,37 +45,43 @@
                   data-bs-toggle="dropdown" 
                   aria-expanded="false">
             <i class="bi bi-bell-fill"></i>
-            <span *ngIf="notificationUnreadCount > 0" 
-                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            @if (notificationUnreadCount > 0) {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
               {{notificationUnreadCount}}
             </span>
+            }
           </button>
           <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 320px; max-height: 400px; overflow-y: auto;">
             <li class="dropdown-header d-flex justify-content-between align-items-center">
               <span class="fw-bold">Notificaciones</span>
-              <button *ngIf="notifications.length > 0" 
-                      class="btn btn-sm btn-link text-decoration-none p-0" 
+              @if (notifications.length > 0) {
+              <button class="btn btn-sm btn-link text-decoration-none p-0" 
                       (click)="markAllAsRead()">
                 Marcar todas
               </button>
+              }
             </li>
             <li><hr class="dropdown-divider"></li>
-            <li *ngIf="notifications.length === 0" class="px-3 py-4 text-center text-muted">
+            @if (notifications.length === 0) {
+            <li class="px-3 py-4 text-center text-muted">
               <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
               No tienes notificaciones
             </li>
-            <li *ngFor="let notif of notifications">
-              <a class="dropdown-item" [class.bg-light]="!notif.isRead" (click)="handleNotificationClick(notif)" style="cursor: pointer;">
-                <div class="d-flex">
-                  <i class="bi" [ngClass]="getNotificationIcon(notif.type)" style="font-size: 1.2rem;"></i>
-                  <div class="ms-2 grow">
-                    <div class="fw-semibold small">{{notif.title}}</div>
-                    <small class="text-muted" style="font-size: 0.75rem;">{{notif.message}}</small>
-                    <div><small class="text-muted" style="font-size: 0.7rem;">{{notif.time}}</small></div>
+            }
+            @for (notif of notifications; track $index) {
+              <li>
+                <a class="dropdown-item" [class.bg-light]="!notif.isRead" (click)="handleNotificationClick(notif)" style="cursor: pointer;">
+                  <div class="d-flex">
+                    <i class="bi" [ngClass]="getNotificationIcon(notif.type)" style="font-size: 1.2rem;"></i>
+                    <div class="ms-2 grow">
+                      <div class="fw-semibold small">{{notif.title}}</div>
+                      <small class="text-muted" style="font-size: 0.75rem;">{{notif.message}}</small>
+                      <div><small class="text-muted" style="font-size: 0.7rem;">{{notif.time}}</small></div>
+                    </div>
                   </div>
-                </div>
-              </a>
-            </li>
+                </a>
+              </li>
+            }
           </ul>
         </li>
 
@@ -80,9 +91,11 @@
             <i class="bi bi-chat-dots-fill"></i>
             <span class="d-lg-none ms-2">Mensajes</span>
 
-            <span *ngIf="unreadCount > 0" class="badge-notification animate-bounce">
+            @if (unreadCount > 0) {
+            <span class="badge-notification animate-bounce">
               {{unreadCount}}
             </span>
+            }
           </a>
         </li>
 
@@ -117,7 +130,9 @@
             <li>
               <a class="dropdown-item" routerLink="/chat">
                 <i class="bi bi-chat-dots me-2"></i> Mensajes
-                <span *ngIf="unreadCount > 0" class="badge bg-danger ms-2">{{unreadCount}}</span>
+                @if (unreadCount > 0) {
+                <span class="badge bg-danger ms-2">{{unreadCount}}</span>
+                }
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
@@ -146,8 +161,10 @@
           </div>
         </li>
       </ul>
+      }
 
-      <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0" *ngIf="!isLoggedIn">
+      @if (!isLoggedIn) {
+      <div class="d-flex flex-column flex-lg-row gap-2 mt-3 mt-lg-0">
         <a routerLink="/login" class="btn btn-outline-primary rounded-pill px-4 fw-bold" (click)="closeMenu()">
           Ingresar
         </a>
@@ -155,6 +172,7 @@
           Registrarse
         </a>
       </div>
+      }
 
     </div>
   </div>
