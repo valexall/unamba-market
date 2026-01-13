@@ -86,6 +86,11 @@ export class ProductDetail implements OnInit {
           return;
       }
 
+      if (!this.product.sellerId) {
+          alert("Error: No se pudo identificar al vendedor.");
+          return;
+      }
+
       const msg = `Hola, estoy interesado en tu producto "${this.product.name}".`;
       
       this.chatService.sendMessage(this.product.idProduct, this.product.sellerId, msg).subscribe({
@@ -93,8 +98,9 @@ export class ProductDetail implements OnInit {
               this.router.navigate(['/chat']);
           },
           error: (err) => {
-              console.error(err);
-              alert("Error al iniciar el chat.");
+              console.error('Error al iniciar chat:', err);
+              const errorMsg = err.error?.listMessage?.[0] || err.error?.message || "Error al iniciar el chat.";
+              alert(errorMsg);
           }
       });
   }

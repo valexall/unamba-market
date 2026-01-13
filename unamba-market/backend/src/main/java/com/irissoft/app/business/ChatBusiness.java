@@ -39,14 +39,16 @@ public class ChatBusiness {
             throw new RuntimeException("No puedes iniciar un chat contigo mismo.");
         }
 
-        Optional<Conversation> existingConv = conversationRepository.findExistingChat(productId, sender.getIdUser(), receiverId);
-        if (existingConv.isEmpty()) {
-            existingConv = conversationRepository.findExistingChat(productId, receiverId, sender.getIdUser());
-        }
+        // Buscar conversación existente entre estos dos usuarios (sin importar el producto)
+        List<Conversation> conversations = conversationRepository.findConversationsBetweenUsers(
+            sender.getIdUser(), receiverId);
 
         Conversation conversation;
-        if (existingConv.isPresent()) {
-            conversation = existingConv.get();
+        if (!conversations.isEmpty()) {
+            // Usar la conversación más reciente (primera de la lista ordenada)
+            conversation = conversations.get(0);
+            // Actualizar el producto relacionado al último mensaje
+            conversation.setProduct(product);
         } else {
             conversation = new Conversation();
             conversation.setIdConversation(UUID.randomUUID().toString());

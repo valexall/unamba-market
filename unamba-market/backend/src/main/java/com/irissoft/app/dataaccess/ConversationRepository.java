@@ -13,4 +13,8 @@ public interface ConversationRepository extends JpaRepository<Conversation, Stri
 
     @Query("SELECT c FROM Conversation c WHERE c.product.idProduct = :idProduct AND c.buyer.idUser = :idBuyer AND c.seller.idUser = :idSeller")
     Optional<Conversation> findExistingChat(String idProduct, String idBuyer, String idSeller);
+    
+    // Buscar conversación entre dos usuarios sin importar el producto (toma la más reciente)
+    @Query(value = "SELECT c FROM Conversation c WHERE (c.buyer.idUser = :userId1 AND c.seller.idUser = :userId2) OR (c.buyer.idUser = :userId2 AND c.seller.idUser = :userId1) ORDER BY c.lastMessageAt DESC")
+    List<Conversation> findConversationsBetweenUsers(String userId1, String userId2);
 }
