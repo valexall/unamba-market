@@ -1,0 +1,150 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <!-- Header -->
+      <div class="d-flex align-items-center mb-4">
+        <button class="btn btn-light me-3" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i> Volver
+        </button>
+        <h2 class="mb-0">Mi Perfil</h2>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="!isLoading && !profile && errorMessage" class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Error al cargar perfil</h4>
+        <p>{{ errorMessage }}</p>
+        <hr>
+        <p class="mb-0">
+          <button class="btn btn-danger" (click)="loadProfile()">
+            <i class="bi bi-arrow-clockwise"></i> Reintentar
+          </button>
+          <button class="btn btn-secondary ms-2" (click)="goBack()">Volver al inicio</button>
+        </p>
+      </div>
+
+      <!-- Profile Content -->
+      <div *ngIf="!isLoading && profile" class="card shadow-sm">
+        <div class="card-body p-4">
+          <!-- Messages -->
+          <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ successMessage }}
+            <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+          </div>
+          <div *ngIf="errorMessage && profile" class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+          </div>
+
+          <!-- Avatar Section -->
+          <div class="text-center mb-4">
+            <div class="position-relative d-inline-block">
+              <img 
+                [src]="getAvatarUrl()" 
+                alt="Avatar" 
+                class="rounded-circle mb-3"
+                style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #dee2e6;">
+              
+              <label *ngIf="isEditing" for="avatarInput" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2" style="cursor: pointer; width: 40px; height: 40px;">
+                <i class="bi bi-camera-fill"></i>
+                <input 
+                  id="avatarInput" 
+                  type="file" 
+                  accept="image/*" 
+                  (change)="onFileSelected($event)"
+                  class="d-none">
+              </label>
+            </div>
+            <h4 class="mb-1">{{ profile.firstName }} {{ profile.lastName }}</h4>
+            <p class="text-muted">{{ profile.email }}</p>
+          </div>
+
+          <!-- Statistics -->
+          <div class="row mb-4">
+            <div class="col-6 text-center">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h3 class="mb-0 text-primary">{{ profile.totalProducts }}</h3>
+                  <small class="text-muted">Productos Publicados</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 text-center">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h3 class="mb-0 text-success">{{ profile.totalSales }}</h3>
+                  <small class="text-muted">Ventas Realizadas</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Information -->
+          <form *ngIf="isEditing" (ngSubmit)="saveProfile()">
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.firstName" name="firstName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Apellido</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.lastName" name="lastName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Teléfono</label>
+              <input type="tel" class="form-control" [(ngModel)]="editForm.phone" name="phone">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Dirección</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.address" name="address">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Biografía</label>
+              <textarea class="form-control" rows="3" [(ngModel)]="editForm.bio" name="bio" placeholder="Cuéntanos sobre ti..."></textarea>
+            </div>
+
+            <!-- Edit Mode Buttons -->
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                Guardar Cambios
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="toggleEdit()" [disabled]="isLoading">
+                Cancelar
+              </button>
+            </div>
+          </form>
+
+          <!-- View Mode -->
+          <div *ngIf="!isEditing">
+            <div class="mb-3">
+              <label class="form-label fw-bold">DNI</label>
+              <p class="form-control-plaintext">{{ profile.dni || 'No especificado' }}</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Teléfono</label>
+              <p class="form-control-plaintext">{{ profile.phone || 'No especificado' }}</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Dirección</label>
+              <p class="form-control-plaintext">{{ profile.address || 'No especificada' }}</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Biografía</label>
+              <p class="form-control-plaintext">{{ profile.bio || 'No hay biografía' }}</p>
+            </div>
+
+            <button class="btn btn-primary" (click)="toggleEdit()">
+              <i class="bi bi-pencil-fill me-2"></i>Editar Perfil
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

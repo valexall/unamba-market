@@ -7,6 +7,7 @@ import { ProductDetail } from './page/product-detail/product-detail/product-deta
 import { Chat } from './page/chat/chat';
 import { Register } from './page/register/register';
 import { Inventory } from './page/inventory/inventory';
+import { ProfileComponent } from './page/profile/profile';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -33,6 +34,11 @@ export const routes: Routes = [
     { 
         path: 'inventory', 
         component: Inventory,
+        canActivate: [authGuard]
+    },
+    { 
+        path: 'profile', 
+        component: ProfileComponent,
         canActivate: [authGuard]
     },
     { path: '**', redirectTo: '' },

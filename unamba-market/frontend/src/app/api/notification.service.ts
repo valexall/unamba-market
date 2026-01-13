@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, interval } from 'rxjs';
+import { BehaviorSubject, Observable, interval, Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { switchMap, startWith } from 'rxjs/operators';
 
@@ -11,10 +11,10 @@ export class NotificationService {
   // Observable para el contador de notificaciones no leídas
   private unreadCountSubject = new BehaviorSubject<number>(0);
   public unreadCount$ = this.unreadCountSubject.asObservable();
+  
+  private pollingSub: Subscription | null = null;
 
-  constructor(private http: HttpClient) {
-    this.startPolling();
-  }
+  constructor(private http: HttpClient) {}
 
   getMyNotifications(): Observable<any> {
     return this.http.get(`${this.url}/my-notifications`);
@@ -37,9 +37,13 @@ export class NotificationService {
     this.unreadCountSubject.next(count);
   }
 
-  // Polling cada 30 segundos para actualizar el contador
-  private startPolling() {
-    interval(30000) // 30 segundos
+  // Iniciar polling cuando el usuario esté logueado
+  startPolling() {
+    if (this.pollingSub) {
+      return; // Ya está haciendo polling
+    }
+    
+    this.pollingSub = interval(30000) // 30 segundos
       .pipe(
         startWith(0),
         switchMap(() => this.getUnreadCount())
@@ -51,9 +55,18 @@ export class NotificationService {
           }
         },
         error: () => {
-          // Silenciar errores de polling (ej: usuario no logueado)
+          // Silenciar errores de polling
         }
       });
+  }
+  
+  // Detener polling cuando el usuario cierre sesión
+  stopPolling() {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
+      this.pollingSub = null;
+    }
+    this.updateUnreadCount(0);
   }
 
   // Refrescar contador manualmente
@@ -63,6 +76,9 @@ export class NotificationService {
         if (response.count !== undefined) {
           this.updateUnreadCount(response.count);
         }
+      },
+      error: () => {
+        // Silenciar error si no está logueado
       }
     });
   }

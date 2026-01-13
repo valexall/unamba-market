@@ -41,6 +41,18 @@ public class User extends EntityGeneric {
 	@Column(name = "cellphone", length = 20)
 	private String cellphone;
 
+	@Column(name = "phone", length = 20)
+	private String phone;
+
+	@Column(name = "dni", length = 20)
+	private String dni;
+
+	@Column(name = "address", length = 255)
+	private String address;
+
+	@Column(name = "bio", columnDefinition = "TEXT")
+	private String bio;
+
 	@Column(name = "profileImage", length = 255)
 	private String profileImage;
 

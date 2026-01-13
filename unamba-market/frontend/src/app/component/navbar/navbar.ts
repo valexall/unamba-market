@@ -57,8 +57,8 @@ export class Navbar implements OnInit, OnDestroy {
         this.notificationUnreadCount = count;
       });
       
-      // Cargar contador inicial de notificaciones
-      this.notificationService.refreshUnreadCount();
+      // Iniciar polling de notificaciones
+      this.notificationService.startPolling();
     }
   }
 
@@ -72,6 +72,7 @@ export class Navbar implements OnInit, OnDestroy {
 
   logout() {
     this.chatService.disconnect();
+    this.notificationService.stopPolling();
     this.authService.logout();
     this.closeMenu();
     this.router.navigate(['/login']).then(() => window.location.reload());
@@ -158,8 +159,6 @@ export class Navbar implements OnInit, OnDestroy {
 
   goToProfile() {
     this.closeMenu();
-    alert('Funcionalidad de perfil en desarrollo');
-    // TODO: Implementar página de perfil
-    // this.router.navigate(['/profile']);
+    this.router.navigate(['/profile']);
   }
 }

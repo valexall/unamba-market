@@ -89,7 +89,7 @@
                             <a class="dropdown-item" [class.bg-light]="!notif.isRead" (click)="handleNotificationClick(notif)" style="cursor: pointer;">
                                 <div class="d-flex">
                                     <i class="bi" [ngClass]="getNotificationIcon(notif.type)" style="font-size: 1.2rem;"></i>
-                                    <div class="ms-2 flex-grow-1">
+                                    <div class="ms-2 grow">
                                         <div class="fw-semibold">{{notif.title}}</div>
                                         <small class="text-muted">{{notif.message}}</small>
                                         <div><small class="text-muted">{{notif.time}}</small></div>

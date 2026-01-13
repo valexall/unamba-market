@@ -77,8 +77,8 @@ export class Home implements OnInit, OnDestroy {
             this.unreadCount = count;
         });
         
-        // Cargar notificaciones al inicio
-        this.notificationService.refreshUnreadCount();
+        // Iniciar polling de notificaciones
+        this.notificationService.startPolling();
     }
   }
 
@@ -244,6 +244,7 @@ export class Home implements OnInit, OnDestroy {
   }
 
   logout() {
+      this.notificationService.stopPolling();
       this.authService.logout();
       window.location.reload(); 
   }
@@ -328,8 +329,6 @@ export class Home implements OnInit, OnDestroy {
   }
 
   goToProfile() {
-    alert('Funcionalidad de perfil en desarrollo');
-    // TODO: Implementar página de perfil
-    // this.router.navigate(['/profile']);
+    this.router.navigate(['/profile']);
   }
 }
