@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../api/auth.service';
@@ -14,7 +14,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
-export class Navbar implements OnInit, OnDestroy {
+export class Navbar implements OnInit, OnDestroy, AfterViewInit {
   isLoggedIn: boolean = false;
   userName: string | null = '';
   profileImage: string | null = null;
@@ -32,7 +32,8 @@ export class Navbar implements OnInit, OnDestroy {
     private authService: AuthService,
     private chatService: ChatService,
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private elementRef: ElementRef
   ) {
     this.isLoggedIn = this.authService.isLoggedIn();
     if(this.isLoggedIn) {
@@ -66,6 +67,18 @@ export class Navbar implements OnInit, OnDestroy {
 
       // Escuchar cambios en localStorage para actualizar foto de perfil
       window.addEventListener('storage', this.handleStorageChange.bind(this));
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.isLoggedIn) {
+      // Capturar evento de Bootstrap cuando se abre el dropdown de notificaciones
+      const notificationDropdown = this.elementRef.nativeElement.querySelector('#notificationsDropdown');
+      if (notificationDropdown) {
+        notificationDropdown.addEventListener('shown.bs.dropdown', () => {
+          this.loadNotifications();
+        });
+      }
     }
   }
 
@@ -114,6 +127,8 @@ export class Navbar implements OnInit, OnDestroy {
             ...n,
             time: this.getRelativeTime(n.createdAt)
           }));
+        } else {
+          this.notifications = [];
         }
       },
       error: () => {

@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable, interval, Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { switchMap, startWith } from 'rxjs/operators';
+import { Client } from '@stomp/stompjs';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
@@ -13,8 +14,9 @@ export class NotificationService {
   public unreadCount$ = this.unreadCountSubject.asObservable();
   
   private pollingSub: Subscription | null = null;
+  private stompClient: Client | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private ngZone: NgZone) {}
 
   getMyNotifications(): Observable<any> {
     return this.http.get(`${this.url}/my-notifications`);
@@ -43,6 +45,9 @@ export class NotificationService {
       return; // Ya está haciendo polling
     }
     
+    // Inicializar WebSocket para notificaciones en tiempo real
+    this.initializeWebSocket();
+    
     this.pollingSub = interval(30000) // 30 segundos
       .pipe(
         startWith(0),
@@ -60,11 +65,50 @@ export class NotificationService {
       });
   }
   
+  // Inicializar WebSocket para notificaciones del sistema
+  private initializeWebSocket() {
+    if (this.stompClient && this.stompClient.active) return;
+
+    const wsUrl = environment.apiUrl.replace('http', 'ws') + '/ws-market';
+    const token = localStorage.getItem('token');
+    let myUserId = localStorage.getItem('userId');
+    if (myUserId) myUserId = myUserId.replace(/['"]+/g, '');
+
+    this.stompClient = new Client({
+      brokerURL: wsUrl,
+      reconnectDelay: 5000,
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      
+      onConnect: () => {
+        if (myUserId) {
+            const topic = `/topic/system-notifications/${myUserId}`;
+            this.stompClient?.subscribe(topic, (msg) => {
+                if (msg.body) {
+                    const count = parseInt(msg.body);
+                    this.ngZone.run(() => {
+                        this.unreadCountSubject.next(count);
+                    });
+                }
+            });
+        }
+      },
+      onStompError: (frame) => {
+        console.error('Error STOMP en notificaciones:', frame.headers['message']);
+      }
+    });
+
+    this.stompClient.activate();
+  }
+  
   // Detener polling cuando el usuario cierre sesión
   stopPolling() {
     if (this.pollingSub) {
       this.pollingSub.unsubscribe();
       this.pollingSub = null;
+    }
+    if (this.stompClient) {
+      this.stompClient.deactivate();
+      this.stompClient = null;
     }
     this.updateUnreadCount(0);
   }

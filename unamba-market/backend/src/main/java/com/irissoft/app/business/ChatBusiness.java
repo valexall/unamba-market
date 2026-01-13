@@ -145,4 +145,16 @@ public class ChatBusiness {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return user.getIdUser();
     }
+
+    public String getEmailByUserId(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return user.getEmail();
+    }
+
+    public String getUserNameByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return user.getFirstName();
+    }
 }

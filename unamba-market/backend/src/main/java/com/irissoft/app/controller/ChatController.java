@@ -24,6 +24,9 @@ public class ChatController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+    @Autowired
+    private com.irissoft.app.business.NotificationBusiness notificationBusiness;
+
     @PostMapping("/send")
     public ResponseEntity<ResponseGeneric> sendMessage(@RequestBody RequestMessageSend request, Principal principal) {
         ResponseGeneric response = new ResponseGeneric() {
@@ -39,9 +42,27 @@ public class ChatController {
             // 2. Notificar al chat (Socket)
             messagingTemplate.convertAndSend("/topic/messages/" + newMessage.getIdConversation(), newMessage);
 
-            // 3. Notificar al receptor (Socket)
-            long count = chatBusiness.getUnreadCountByUserId(request.getReceiverId());
-            messagingTemplate.convertAndSend("/topic/notifications/" + request.getReceiverId(), count);
+            // 3. Crear notificación persistente para el receptor
+            String senderName = chatBusiness.getUserNameByEmail(principal.getName());
+            notificationBusiness.createNotification(
+                request.getReceiverId(),
+                "MESSAGE",
+                "Nuevo mensaje de " + senderName,
+                request.getContent().length() > 50 ? 
+                    request.getContent().substring(0, 50) + "..." : 
+                    request.getContent(),
+                newMessage.getIdConversation()
+            );
+
+            // 4. Notificar al receptor del contador actualizado (Socket)
+            long chatCount = chatBusiness.getUnreadCountByUserId(request.getReceiverId());
+            messagingTemplate.convertAndSend("/topic/notifications/" + request.getReceiverId(), chatCount);
+            
+            // 5. Actualizar contador de notificaciones del sistema
+            long notificationCount = notificationBusiness.getUnreadCount(
+                chatBusiness.getEmailByUserId(request.getReceiverId())
+            );
+            messagingTemplate.convertAndSend("/topic/system-notifications/" + request.getReceiverId(), notificationCount);
 
             response.success();
             response.listMessage.add("Mensaje enviado");
