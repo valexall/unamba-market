@@ -61,8 +61,12 @@
                         <input #fileInput type="file" (change)="onFileSelect($event)" accept="image/*" hidden>
                         
                         <div class="preview-circle">
-                            <img *ngIf="imagePreview" [src]="imagePreview">
-                            <i *ngIf="!imagePreview" class="bi bi-person-fill text-muted fs-4"></i>
+                            @if (imagePreview) {
+                                <img [src]="imagePreview">
+                            }
+                            @if (!imagePreview) {
+                                <i class="bi bi-person-fill text-muted fs-4"></i>
+                            }
                         </div>
                         
                         <div class="upload-text">
@@ -75,10 +79,16 @@
                 </div>
 
                 <button type="submit" class="btn-submit" [disabled]="formRegister.invalid || isLoading">
-                    <span *ngIf="!isLoading">Registrarse</span>
-                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    <span *ngIf="isLoading">Procesando...</span>
-                    <i *ngIf="!isLoading" class="bi bi-arrow-right"></i>
+                    @if (!isLoading) {
+                        <span>Registrarse</span>
+                    }
+                    @if (isLoading) {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span>Procesando...</span>
+                    }
+                    @if (!isLoading) {
+                        <i class="bi bi-arrow-right"></i>
+                    }
                 </button>
 
             </form>

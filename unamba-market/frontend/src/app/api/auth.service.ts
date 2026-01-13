@@ -69,7 +69,16 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    
+    // Verificar si el token está expirado
+    if (this.isTokenExpired(token)) {
+      this.logout();
+      return false;
+    }
+    
+    return true;
   }
 
   getUserId(): string | null {
@@ -84,13 +93,29 @@ export class AuthService {
     return localStorage.getItem('refreshToken');
   }
 
+  isTokenExpired(token?: string): boolean {
+    const tokenToCheck = token || this.getToken();
+    if (!tokenToCheck) return true;
+    
+    try {
+      const payload = JSON.parse(atob(tokenToCheck.split('.')[1]));
+      const exp = payload.exp;
+      if (!exp) return true;
+      
+      // exp está en segundos, Date.now() en milisegundos
+      const isExpired = Date.now() >= exp * 1000;
+      return isExpired;
+    } catch (e) {
+      return true;
+    }
+  }
+
   private decodeToken(token: string): string | null {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       // Busca el campo correcto (puede ser userId, id, sub, etc.)
       return payload.userId || payload.id || payload.sub || null;
     } catch (e) {
-      console.error('Error decodificando token', e);
       return null;
     }
   }
