@@ -23,6 +23,14 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
   myId: string | null = '';
   apiUrl = environment.apiUrl;
   showMobileChatView: boolean = false;
+  showEmojiPicker: boolean = false;
+  
+  emojis: string[] = [
+    '😊', '😂', '🤣', '😍', '😘', '❤️', '👍', '🎉', 
+    '✅', '❌', '👌', '🔥', '⭐', '💯', '😎', '🤔',
+    '😢', '😡', '🥳', '🚀', '💡', '📱', '💻', '🎮',
+    '⚽', '🏀', '🎾', '🏐', '🎵', '🎤', '📚', '✏️'
+  ];
   
   // === PROPIEDADES QUE FALTABAN ===
   private wsSub: Subscription | null = null;
@@ -187,6 +195,15 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
         });
       }
     });
+  }
+
+  toggleEmojiPicker(): void {
+    this.showEmojiPicker = !this.showEmojiPicker;
+  }
+
+  insertEmoji(emoji: string): void {
+    this.newMessage += emoji;
+    this.showEmojiPicker = false;
   }
 
   getImageUrl(filename: string): string {

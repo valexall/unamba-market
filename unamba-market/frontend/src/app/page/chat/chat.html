@@ -13,8 +13,8 @@
             </div>
             
             <div class="conversations-list">
-                <button *ngFor="let c of conversations" 
-                        class="conversation-item d-flex align-items-center position-relative"
+                @for (c of conversations; track c.idConversation) {
+                <button class="conversation-item d-flex align-items-center position-relative"
                         [class.active]="selectedConversation?.idConversation === c.idConversation"
                         (click)="selectChat(c)">
                     
@@ -22,10 +22,12 @@
                         <img [src]="getImageUrl(c.otherUserProfileImage)" 
                              class="rounded-circle me-3 border" width="50" height="50" 
                              style="object-fit: cover;">
-                        <span *ngIf="c.unreadCount > 0" class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle"></span>
+                        @if (c.unreadCount > 0) {
+                            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-light rounded-circle"></span>
+                        }
                     </div>
                     
-                    <div class="flex-grow-1 overflow-hidden">
+                    <div class="grow overflow-hidden">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <h6 class="mb-0 text-truncate fw-semibold text-dark">
                                 {{c.otherUserName}}
@@ -39,9 +41,11 @@
                             <small class="text-muted text-truncate d-block" style="max-width: 180px;">
                                 <i class="bi bi-tag-fill text-primary me-1"></i> {{c.productName}}
                             </small>
-                            <span *ngIf="c.unreadCount > 0" class="badge bg-success rounded-pill">
-                                {{c.unreadCount}}
-                            </span>
+                            @if (c.unreadCount > 0) {
+                                <span class="badge bg-success rounded-pill">
+                                    {{c.unreadCount}}
+                                </span>
+                            }
                         </div>
                     </div>
 
@@ -52,17 +56,20 @@
                         <i class="bi bi-trash"></i>
                     </button>
                 </button>
+                }
 
-                <div *ngIf="conversations.length === 0" class="text-center p-5 text-muted">
+                @if (conversations.length === 0) {
+                <div class="text-center p-5 text-muted">
                     <i class="bi bi-chat-square-heart display-4 mb-3 d-block opacity-25"></i>
                     <p>No tienes mensajes aún.</p>
                 </div>
+                }
             </div>
         </div>
 
         <div class="chat-area" [class.hidden-on-mobile]="!showMobileChatView">
             
-            <ng-container *ngIf="selectedConversation; else noChatSelected">
+            @if (selectedConversation) {
                 
                 <div class="chat-header shadow-sm">
                     <div class="d-flex align-items-center">
@@ -88,25 +95,46 @@
                 </div>
 
                 <div class="messages-content" #scrollContainer>
-                    <div *ngFor="let m of messages" 
-                         class="message-bubble shadow-sm"
+                    @for (m of messages; track m.idMessage) {
+                    <div class="message-bubble shadow-sm"
                          [ngClass]="{'msg-outgoing': m.idSender === myId, 'msg-incoming': m.idSender !== myId}">
                         
                         <span class="text-break">{{m.content}}</span>
                         
                         <div class="msg-time">
                             {{m.createdAt | date:'HH:mm'}}
-                            <i *ngIf="m.idSender === myId" 
-                               class="bi bi-check-all" 
-                               [ngClass]="{'text-primary': m.read, 'text-muted': !m.read}"
-                               style="font-size: 1rem;"></i>
+                            @if (m.idSender === myId) {
+                                <i class="bi bi-check-all" 
+                                   [ngClass]="{'text-primary': m.read, 'text-muted': !m.read}"
+                                   style="font-size: 1rem;"></i>
+                            }
                         </div>
                     </div>
+                    }
                 </div>
 
                 <div class="chat-input-area">
                     <div class="input-wrapper">
-                        <button class="btn btn-link text-muted p-0 me-2"><i class="bi bi-emoji-smile fs-5"></i></button>
+                        <div class="emoji-picker-container">
+                            <button class="btn btn-link text-muted p-0 me-2" 
+                                    (click)="toggleEmojiPicker()"
+                                    type="button">
+                                <i class="bi bi-emoji-smile fs-5"></i>
+                            </button>
+                            
+                            @if (showEmojiPicker) {
+                                <div class="emoji-picker">
+                                    @for (emoji of emojis; track emoji) {
+                                        <button class="emoji-btn" 
+                                                (click)="insertEmoji(emoji)"
+                                                type="button"
+                                                title="{{emoji}}">
+                                            {{emoji}}
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </div>
                         
                         <input type="text" 
                                class="chat-input" 
@@ -124,9 +152,7 @@
                     </div>
                 </div>
 
-            </ng-container>
-
-            <ng-template #noChatSelected>
+            } @else {
                 <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
                     <div class="bg-white p-4 rounded-circle shadow-sm mb-3">
                         <i class="bi bi-chat-dots-fill display-4 text-primary"></i>
@@ -134,7 +160,7 @@
                     <h4 class="fw-light">UNAMBA Market Chat</h4>
                     <p class="small">Selecciona una conversación para comenzar.</p>
                 </div>
-            </ng-template>
+            }
 
         </div>
     </div>
