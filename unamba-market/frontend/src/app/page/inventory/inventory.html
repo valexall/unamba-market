@@ -56,12 +56,13 @@
                             </span>
                         </td>
                         <td>
-                            <i class="bi bi-eye text-muted"></i> {{p.viewCount || 0}}
+                            <i class="bi bi-eye text-muted me-1"></i> 
+                            <span class="fw-semibold">{{p.viewCount ?? 0}}</span>
                         </td>
-                        <td class="text-end pe-4">
+                        <td class="text-end pe-4 position-relative">
                             <div class="dropdown">
                                 <button class="btn btn-light btn-sm rounded-circle" type="button"
-                                    data-bs-toggle="dropdown">
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-three-dots-vertical"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow">

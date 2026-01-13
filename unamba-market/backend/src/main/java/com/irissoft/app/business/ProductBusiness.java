@@ -197,6 +197,13 @@ public class ProductBusiness {
         Product entity = productRepository.findById(idProduct)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
+        // Incrementar contador de vistas
+        if (entity.getViewCount() == null) {
+            entity.setViewCount(0);
+        }
+        entity.setViewCount(entity.getViewCount() + 1);
+        productRepository.save(entity);
+
         DtoProduct dto = new DtoProduct();
         dto.setIdProduct(entity.getIdProduct());
         dto.setName(entity.getName());
