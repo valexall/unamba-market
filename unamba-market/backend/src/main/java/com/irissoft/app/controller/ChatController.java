@@ -104,4 +104,20 @@ public class ChatController {
         response.success();
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/conversation/{conversationId}")
+    public ResponseEntity<ResponseGeneric> deleteConversation(@PathVariable String conversationId, Principal principal) {
+        ResponseGeneric response = new ResponseGeneric() {
+        };
+        try {
+            chatBusiness.deleteConversation(conversationId, principal.getName());
+            response.success();
+            response.listMessage.add("Conversación eliminada");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.error();
+            response.listMessage.add(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
 }

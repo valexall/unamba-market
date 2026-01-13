@@ -31,6 +31,10 @@ export class ChatService {
     return this.http.get(`${this.url}/messages/${conversationId}`);
   }
 
+  deleteConversation(conversationId: string): Observable<any> {
+    return this.http.delete(`${this.url}/conversation/${conversationId}`);
+  }
+
   // === CORRECCIÓN AQUÍ: Volvemos al nombre original ===
   getUnreadCount(): Observable<any> {
     return this.http.get(`${this.url}/unread-count`);

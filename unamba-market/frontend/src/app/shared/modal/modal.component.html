@@ -1,0 +1,36 @@
+<div class="modal-backdrop" [class.show]="isVisible" (click)="close()" *ngIf="isVisible"></div>
+
+<div class="modal-dialog" [class.show]="isVisible" [ngClass]="getTypeClass()" *ngIf="config">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <div class="modal-icon">
+        <i class="bi" [ngClass]="config.icon"></i>
+      </div>
+      <button type="button" class="btn-close" (click)="close()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <h5 class="modal-title">{{ config.title }}</h5>
+      <p class="modal-message" [innerHTML]="config.message"></p>
+    </div>
+
+    <div class="modal-footer">
+      @if (config.type === 'confirm') {
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">
+          {{ config.cancelText || 'Cancelar' }}
+        </button>
+        <button type="button" class="btn btn-primary" (click)="onConfirm()">
+          {{ config.confirmText || 'Confirmar' }}
+        </button>
+      } @else {
+        <button type="button" class="btn btn-primary" (click)="onConfirm()">
+          {{ config.confirmText || 'Aceptar' }}
+        </button>
+      }
+    </div>
+
+  </div>
+</div>

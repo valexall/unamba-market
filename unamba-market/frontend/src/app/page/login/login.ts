@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../api/auth.service';
 import { CommonModule } from '@angular/common';
+import { ModalService } from '../../shared/modal/modal.service';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,8 @@ export class Login {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private modalService: ModalService
   ) {
     this.formLogin = this.formBuilder.group({
       'email': ['', [Validators.required, Validators.email]],
@@ -43,7 +45,7 @@ export class Login {
         error: (err) => {
           this.isLoading = false;
           const msg = err.error?.message || "Credenciales incorrectas o error de conexión.";
-          alert("Error: " + msg);
+          this.modalService.error(msg, 'Error de Autenticación');
         }
       });
     } else {

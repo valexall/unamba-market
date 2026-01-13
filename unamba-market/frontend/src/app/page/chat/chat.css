@@ -48,9 +48,19 @@
     background-color: #f5f6f6;
 }
 
+.conversation-item:hover .delete-btn {
+    opacity: 1 !important;
+}
+
 .conversation-item.active {
     background-color: #e7f3ff; /* Azul muy suave */
     border-left: 4px solid #0d47a1;
+}
+
+.delete-btn:hover {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
 }
 
 /* === COLUMNA DERECHA (CHAT AREA) === */

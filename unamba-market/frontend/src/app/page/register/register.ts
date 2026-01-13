@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../api/auth.service';
 import { CommonModule } from '@angular/common';
+import { ModalService } from '../../shared/modal/modal.service';
 
 @Component({
   selector: 'app-register',
@@ -20,7 +21,8 @@ export class Register {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private modalService: ModalService
   ) {
     this.formRegister = this.formBuilder.group({
       'firstName': ['', [Validators.required, Validators.minLength(2)]],
@@ -69,7 +71,7 @@ export class Register {
       error: (err) => {
         this.isLoading = false;
         const msg = err.error?.listMessage?.[0] || "No se pudo registrar el usuario.";
-        alert("Error: " + msg);
+        this.modalService.error(msg, 'Error de Registro');
       }
     });
   }

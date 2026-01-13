@@ -158,4 +158,23 @@ public class ChatBusiness {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return user.getFirstName();
     }
+
+    @Transactional
+    public void deleteConversation(String conversationId, String userEmail) {
+        User me = userRepository.findByEmail(userEmail).orElseThrow();
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new RuntimeException("Conversación no encontrada"));
+
+        // Verificar que el usuario es parte de la conversación
+        if (!conversation.getBuyer().getIdUser().equals(me.getIdUser()) && 
+            !conversation.getSeller().getIdUser().equals(me.getIdUser())) {
+            throw new RuntimeException("No tienes permiso para eliminar esta conversación");
+        }
+
+        // Eliminar todos los mensajes de la conversación
+        messageRepository.deleteByConversation_IdConversation(conversationId);
+        
+        // Eliminar la conversación
+        conversationRepository.delete(conversation);
+    }
 }

@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../api/product.service';
 import { Navbar } from '../../component/navbar/navbar';
 import { environment } from '../../../environments/environment';
+import { ModalService } from '../../shared/modal/modal.service';
 
 @Component({
   selector: 'app-inventory',
@@ -17,7 +18,11 @@ export class Inventory implements OnInit {
   isLoading = true;
   apiUrl = environment.apiUrl;
 
-  constructor(private productService: ProductService, private router: Router) {}
+  constructor(
+    private productService: ProductService, 
+    private router: Router,
+    private modalService: ModalService
+  ) {}
 
   ngOnInit(): void {
     this.loadInventory();
@@ -49,7 +54,7 @@ export class Inventory implements OnInit {
             this.products = this.products.filter(p => p.idProduct !== id);
         }
       },
-      error: () => alert("Error al actualizar estado")
+      error: () => this.modalService.error('No se pudo actualizar el estado del producto.')
     });
   }
 

@@ -14,7 +14,7 @@
             
             <div class="conversations-list">
                 <button *ngFor="let c of conversations" 
-                        class="conversation-item d-flex align-items-center"
+                        class="conversation-item d-flex align-items-center position-relative"
                         [class.active]="selectedConversation?.idConversation === c.idConversation"
                         (click)="selectChat(c)">
                     
@@ -44,6 +44,13 @@
                             </span>
                         </div>
                     </div>
+
+                    <button class="btn btn-sm btn-outline-danger rounded-circle ms-2 delete-btn" 
+                            (click)="deleteChat(c.idConversation, $event)"
+                            title="Eliminar conversación"
+                            style="width: 32px; height: 32px; padding: 0; opacity: 0; transition: opacity 0.2s;">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </button>
 
                 <div *ngIf="conversations.length === 0" class="text-center p-5 text-muted">

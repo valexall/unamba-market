@@ -10,6 +10,7 @@ import { ChatService } from '../../api/chat.service';
 import { NotificationService } from '../../api/notification.service';
 import { environment } from '../../../environments/environment';
 import { Subscription } from 'rxjs';
+import { ModalService } from '../../shared/modal/modal.service';
 
 @Component({
   selector: 'app-home',
@@ -60,7 +61,8 @@ export class Home implements OnInit, OnDestroy {
     private authService: AuthService,
     private chatService: ChatService,
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private modalService: ModalService
   ) {
     this.isLoggedIn = this.authService.isLoggedIn();
     if(this.isLoggedIn) {
@@ -220,7 +222,7 @@ export class Home implements OnInit, OnDestroy {
 
   filterMyProducts() {
       if (!this.isLoggedIn) {
-          alert("Inicia sesión para ver tus publicaciones");
+          this.modalService.warning('Inicia sesión para ver tus publicaciones', 'Sesión Requerida');
           return;
       }
       this.showMyProducts = true;
@@ -258,12 +260,12 @@ export class Home implements OnInit, OnDestroy {
 
   toggleFavorite(id: string) {
       if (!this.isLoggedIn) {
-          alert("Inicia sesión para guardar favoritos.");
+          this.modalService.warning('Inicia sesión para guardar favoritos.', 'Sesión Requerida');
           return;
       }
       this.favService.toggle(id).subscribe({
-          next: (resp: any) => alert(resp.listMessage?.[0] || "Favorito actualizado"),
-          error: () => alert("Error al agregar favorito")
+          next: (resp: any) => this.modalService.success(resp.listMessage?.[0] || "Favorito actualizado"),
+          error: () => this.modalService.error("No se pudo agregar a favoritos")
       });
   }
 

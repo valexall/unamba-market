@@ -18,4 +18,6 @@ public interface MessageRepository extends JpaRepository<Message, String> {
                "WHERE (c.buyer.idUser = :myId OR c.seller.idUser = :myId) " +
                "AND m.sender.idUser <> :myId AND m.isRead = false")
         long countTotalUnread(@Param("myId") String myId);
+       // Eliminar todos los mensajes de una conversación
+        void deleteByConversation_IdConversation(String idConversation);
     }

@@ -3,10 +3,12 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError, switchMap } from 'rxjs';
 import { AuthService } from '../api/auth.service';
+import { ModalService } from '../shared/modal/modal.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authService = inject(AuthService);
+  const modalService = inject(ModalService);
   
   // No agregar token a endpoints de autenticación
   if (req.url.includes('/auth/login') || 
@@ -51,7 +53,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
               // Si el refresh falla, cerrar sesión
               localStorage.clear();
               router.navigate(['/login']).then(() => {
-                alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+                modalService.warning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'Sesión Expirada');
               });
               return throwError(() => refreshError);
             })
@@ -60,7 +62,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           // No hay refresh token, cerrar sesión directamente
           localStorage.clear();
           router.navigate(['/login']).then(() => {
-            alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+            modalService.warning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'Sesión Expirada');
           });
         }
       }

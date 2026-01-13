@@ -6,6 +6,7 @@ import { Navbar } from '../../component/navbar/navbar';
 import { ProductService } from '../../api/product.service';
 import { CategoryService } from '../../api/category.service';
 import { environment } from '../../../environments/environment';
+import { ModalService } from '../../shared/modal/modal.service';
 
 @Component({
   selector: 'app-product-insert',
@@ -42,7 +43,8 @@ export class ProductInsert implements OnInit {
     private categoryService: CategoryService,
     private router: Router,
     private route: ActivatedRoute,
-    private location: Location 
+    private location: Location,
+    private modalService: ModalService
   ) {
     this.formProduct = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(5)]],
@@ -100,7 +102,7 @@ export class ProductInsert implements OnInit {
       const files = event.target.files;
       
       if (this.selectedFiles.length + files.length > this.maxImages) {
-        alert(`Solo puedes subir un máximo de ${this.maxImages} fotos.`);
+        this.modalService.warning(`Solo puedes subir un máximo de ${this.maxImages} fotos.`, 'Límite de Imágenes');
         return;
       }
 
@@ -139,7 +141,8 @@ export class ProductInsert implements OnInit {
     const value = (event.target.value || '').trim();
     if (value) {
       if (this.selectedTags.length >= 5) {
-        alert("Máximo 5 etiquetas"); return;
+        this.modalService.warning('Máximo 5 etiquetas permitidas', 'Límite de Etiquetas');
+        return;
       }
       if (!this.selectedTags.includes(value)) {
         this.selectedTags.push(value);
@@ -175,7 +178,10 @@ export class ProductInsert implements OnInit {
       if (this.formProduct.get('price')?.invalid) invalidFields.push('Precio');
       if (this.formProduct.get('productCondition')?.invalid) invalidFields.push('Estado del producto');
       
-      alert(`Por favor completa los siguientes campos:\n• ${invalidFields.join('\n• ')}`);
+      this.modalService.warning(
+        `Por favor completa los siguientes campos:\n• ${invalidFields.join('\n• ')}`,
+        'Campos Requeridos'
+      );
       
       // Scroll al primer campo inválido
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -217,15 +223,18 @@ export class ProductInsert implements OnInit {
     request$.subscribe({
         next: () => {
             this.isLoading = false;
-            alert(this.isEditMode ? 'Producto actualizado' : 'Producto publicado con éxito');
-            this.router.navigate(['/inventory']);
+            this.modalService.success(
+              this.isEditMode ? 'Producto actualizado correctamente' : 'Producto publicado con éxito',
+              '¡Completado!'
+            );
+            setTimeout(() => this.router.navigate(['/inventory']), 1500);
         },
         error: (e) => {
             this.isLoading = false;
             
             // Si es error 403, el token expiró o no está autenticado
             if (e.status === 403) {
-                alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+                this.modalService.warning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'Sesión Expirada');
                 localStorage.removeItem('token');
                 this.router.navigate(['/login'], { 
                     queryParams: { returnUrl: '/product/create' }
@@ -234,7 +243,7 @@ export class ProductInsert implements OnInit {
             }
             
             const errorMsg = e.error?.listMessage?.[0] || 'Ocurrió un error al guardar el producto.';
-            alert(errorMsg);
+            this.modalService.error(errorMsg, 'Error al Guardar');
         }
     });
   }

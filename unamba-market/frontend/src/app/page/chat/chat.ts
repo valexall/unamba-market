@@ -6,6 +6,7 @@ import { AuthService } from '../../api/auth.service';
 import { Navbar } from '../../component/navbar/navbar';
 import { environment } from '../../../environments/environment';
 import { Subscription } from 'rxjs';
+import { ModalService } from '../../shared/modal/modal.service';
 
 @Component({
   selector: 'app-chat',
@@ -29,7 +30,8 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
 
   constructor(
     private chatService: ChatService, 
-    private authService: AuthService
+    private authService: AuthService,
+    private modalService: ModalService
   ) {
     this.myId = localStorage.getItem('userId');
   }
@@ -110,7 +112,7 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
             this.newMessage = ''; 
         },
         error: () => {
-            alert('Error al enviar mensaje');
+            this.modalService.error('No se pudo enviar el mensaje. Intenta nuevamente.');
         }
     });
   }
@@ -156,6 +158,35 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
   backToList() {
     this.showMobileChatView = false;
     this.selectedConversation = null;
+  }
+
+  deleteChat(conversationId: string, event: Event) {
+    event.stopPropagation(); // Evitar que se abra el chat al hacer click en eliminar
+    
+    this.modalService.confirm(
+      'Esta acción eliminará todos los mensajes de esta conversación y no se puede deshacer.',
+      '¿Eliminar conversación?'
+    ).subscribe(confirmed => {
+      if (confirmed) {
+        this.chatService.deleteConversation(conversationId).subscribe({
+          next: () => {
+            // Eliminar de la lista local
+            this.conversations = this.conversations.filter(c => c.idConversation !== conversationId);
+            
+            // Si era el chat seleccionado, deseleccionar
+            if (this.selectedConversation?.idConversation === conversationId) {
+              this.selectedConversation = null;
+              this.messages = [];
+              this.showMobileChatView = false;
+            }
+            this.modalService.success('Conversación eliminada correctamente');
+          },
+          error: () => {
+            this.modalService.error('No se pudo eliminar la conversación. Intenta nuevamente.');
+          }
+        });
+      }
+    });
   }
 
   getImageUrl(filename: string): string {

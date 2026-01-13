@@ -6,6 +6,7 @@ import { AuthService } from '../../../api/auth.service';
 import { Navbar } from '../../../component//navbar/navbar';
 import { environment } from '../../../../environments/environment';
 import { ChatService } from '../../../api/chat.service';
+import { ModalService } from '../../../shared/modal/modal.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -28,7 +29,8 @@ export class ProductDetail implements OnInit {
     private router: Router,
     private productService: ProductService,
     private authService: AuthService,
-    private chatService: ChatService 
+    private chatService: ChatService,
+    private modalService: ModalService
   ) {
     this.isLoggedIn = this.authService.isLoggedIn();
   }
@@ -75,18 +77,18 @@ export class ProductDetail implements OnInit {
 
   contactSeller() {
       if (!this.isLoggedIn) {
-          alert("Debes iniciar sesión para contactar al vendedor.");
+          this.modalService.warning('Debes iniciar sesión para contactar al vendedor.', 'Sesión Requerida');
           this.router.navigate(['/login']);
           return;
       }
 
       if (this.isOwner) {
-          alert("No puedes contactarte a ti mismo.");
+          this.modalService.info('No puedes contactarte a ti mismo.');
           return;
       }
 
       if (!this.product.sellerId) {
-          alert("Error: No se pudo identificar al vendedor.");
+          this.modalService.error('No se pudo identificar al vendedor.');
           return;
       }
 
@@ -98,20 +100,25 @@ export class ProductDetail implements OnInit {
           },
           error: (err) => {
               const errorMsg = err.error?.listMessage?.[0] || err.error?.message || "Error al iniciar el chat.";
-              alert(errorMsg);
+              this.modalService.error(errorMsg, 'Error de Comunicación');
           }
       });
   }
 
   buyProduct() {
       if (!this.isLoggedIn) {
-          alert("Debes iniciar sesión para comprar.");
+          this.modalService.warning('Debes iniciar sesión para comprar.', 'Sesión Requerida');
           this.router.navigate(['/login']);
           return;
       }
       
-      if(confirm(`¿Estás seguro de comprar "${this.product.name}" por S/ ${this.product.price}?`)) {
-          alert("¡Solicitud de compra enviada! (Funcionalidad de Transacción en proceso)");
-      }
+      this.modalService.confirm(
+          `¿Estás seguro de comprar "${this.product.name}" por S/ ${this.product.price}?`,
+          'Confirmar Compra'
+      ).subscribe(confirmed => {
+          if (confirmed) {
+              this.modalService.info("¡Solicitud de compra enviada! (Funcionalidad de Transacción en proceso)");
+          }
+      });
   }
 }
