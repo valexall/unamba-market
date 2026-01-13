@@ -1,166 +1,145 @@
-<div class="profile-container">
-  <div class="container py-4">
-    <!-- Back Button -->
-    <button class="btn-back mb-3" (click)="goBack()">
-      <i class="bi bi-arrow-left"></i>
-    </button>
+<app-navbar></app-navbar>
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-card">
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-3">Cargando perfil...</p>
-    </div>
+<div *ngIf="isLoading" class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="spinner-border text-primary" role="status"></div>
+</div>
 
-    <!-- Error State -->
-    <div *ngIf="!isLoading && !profile && errorMessage" class="error-card">
-      <i class="bi bi-exclamation-triangle-fill error-icon"></i>
-      <h4>Error al cargar perfil</h4>
-      <p>{{ errorMessage }}</p>
-      <div class="error-actions">
-        <button class="btn btn-primary" (click)="loadProfile()">
-          <i class="bi bi-arrow-clockwise"></i> Reintentar
-        </button>
-        <button class="btn btn-secondary ms-2" (click)="router.navigate(['/login'])">
-          <i class="bi bi-box-arrow-in-right"></i> Ir al Login
-        </button>
-      </div>
-    </div>
+<div *ngIf="!isLoading && profile">
+    
+    <div class="profile-header-bg"></div>
 
-    <!-- Messages -->
-    <div *ngIf="successMessage" class="alert alert-success mb-3" role="alert">
-      <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
-      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
-    </div>
-    <div *ngIf="errorMessage && profile" class="alert alert-danger mb-3" role="alert">
-      <i class="bi bi-exclamation-circle-fill me-2"></i>{{ errorMessage }}
-      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
-    </div>
+    <div class="container profile-container">
+        <div class="row">
+            
+            <div class="col-lg-4 col-md-5">
+                <div class="card user-card">
+                    <div class="avatar-wrapper">
+                        <img [src]="getAvatarUrl()" class="profile-avatar" alt="Foto de perfil">
+                        
+                        <label class="btn-edit-photo" *ngIf="activeTab === 'edit'" title="Cambiar foto">
+                            <i class="bi bi-camera-fill"></i>
+                            <input type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
+                        </label>
+                    </div>
 
-    <!-- Profile Card -->
-    <div *ngIf="!isLoading && profile" class="profile-card">
-      <!-- Colorful Cover -->
-      <div class="profile-cover">
-        <button *ngIf="!isEditing" class="btn-edit-icon" (click)="toggleEdit()">
-          <i class="bi bi-pencil-fill"></i>
-        </button>
-      </div>
+                    <div class="px-4">
+                        <h3 class="fw-bold mb-1">{{ profile.firstName }} {{ profile.lastName }}</h3>
+                        <p class="text-muted small mb-3">{{ profile.email }}</p>
+                        
+                        <div class="role-badge">
+                            <i class="bi bi-mortarboard-fill me-1"></i> Estudiante UNAMBA
+                        </div>
 
-      <!-- Main Content -->
-      <div class="profile-content">
-        <!-- Left Section -->
-        <div class="profile-left">
-          <!-- Avatar -->
-          <div class="avatar-container">
-            <img [src]="getAvatarUrl()" alt="Avatar" class="profile-avatar">
-            <label *ngIf="isEditing" for="avatarInput" class="avatar-edit-overlay">
-              <i class="bi bi-camera-fill"></i>
-              <input 
-                id="avatarInput" 
-                type="file" 
-                accept="image/*" 
-                (change)="onFileSelected($event)"
-                class="d-none">
-            </label>
-          </div>
-
-          <!-- User Info -->
-          <div class="user-info" *ngIf="!isEditing">
-            <h2 class="user-name">{{ profile.firstName }} {{ profile.lastName }}</h2>
-            <p class="user-role">{{ profile.bio || 'Usuario de Unamba Market' }}</p>
-            <p class="user-location">
-              <i class="bi bi-geo-alt-fill me-1"></i>{{ profile.address || 'Abancay, Apurímac' }}
-            </p>
-          </div>
-
-          <!-- Edit Form -->
-          <form *ngIf="isEditing" (ngSubmit)="saveProfile()" class="edit-form-compact">
-            <input type="text" class="form-input" [(ngModel)]="editForm.firstName" name="firstName" placeholder="Nombre" required>
-            <input type="text" class="form-input" [(ngModel)]="editForm.lastName" name="lastName" placeholder="Apellido" required>
-            <input type="text" class="form-input" [(ngModel)]="editForm.bio" name="bio" placeholder="Biografía">
-            <input type="text" class="form-input" [(ngModel)]="editForm.address" name="address" placeholder="Ubicación">
-            <input type="tel" class="form-input" [(ngModel)]="editForm.phone" name="phone" placeholder="Teléfono">
-          </form>
-
-          <!-- Action Buttons -->
-          <div class="action-buttons" *ngIf="!isEditing">
-            <button class="btn-primary-action" (click)="toggleEdit()">
-              <i class="bi bi-pencil-fill me-2"></i>Editar Perfil
-            </button>
-            <button class="btn-secondary-action" (click)="goBack()">
-              <i class="bi bi-gear-fill me-2"></i>Configuración
-            </button>
-          </div>
-
-          <div class="action-buttons" *ngIf="isEditing">
-            <button type="submit" class="btn-primary-action" [disabled]="isLoading" (click)="saveProfile()">
-              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-              <i *ngIf="!isLoading" class="bi bi-check-circle-fill me-2"></i>Guardar
-            </button>
-            <button type="button" class="btn-secondary-action" (click)="toggleEdit()">
-              <i class="bi bi-x-circle-fill me-2"></i>Cancelar
-            </button>
-          </div>
-        </div>
-
-        <!-- Right Section -->
-        <div class="profile-right">
-          <!-- Current Role -->
-          <div class="info-box">
-            <div class="info-box-header">
-              <span class="info-box-title">Rol actual</span>
-              <i class="bi bi-briefcase-fill"></i>
+                        <div class="stats-row">
+                            <div class="stat-item">
+                                <h4>{{ profile.totalProducts || 0 }}</h4>
+                                <small>Publicaciones</small>
+                            </div>
+                            <div class="vr opacity-25"></div>
+                            <div class="stat-item">
+                                <h4>{{ profile.totalSales || 0 }}</h4>
+                                <small>Ventas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p class="info-box-value">{{ profile.bio || 'Vendedor' }}</p>
-          </div>
 
-          <!-- Skills/Stats -->
-          <div class="info-box">
-            <div class="info-box-header">
-              <span class="info-box-title">Estadísticas</span>
-              <i class="bi bi-star-fill"></i>
+            <div class="col-lg-8 col-md-7">
+                <div class="card details-card">
+                    
+                    <div class="card-header bg-white border-bottom-0 pt-3 px-0 mx-4">
+                        <ul class="nav nav-tabs custom-tabs">
+                            <li class="nav-item">
+                                <button class="nav-link" [class.active]="activeTab === 'info'" 
+                                        (click)="activeTab = 'info'">
+                                    <i class="bi bi-person-vcard me-2"></i> Información
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" [class.active]="activeTab === 'edit'" 
+                                        (click)="activeTab = 'edit'">
+                                    <i class="bi bi-pencil-square me-2"></i> Editar Perfil
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card-body p-4">
+                        
+                        <div *ngIf="activeTab === 'info'" class="animate__animated animate__fadeIn">
+                            <h5 class="fw-bold text-dark mb-4">Detalles de Contacto</h5>
+                            
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light p-3 rounded-circle me-3 text-primary">
+                                            <i class="bi bi-telephone-fill fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Teléfono / Celular</div>
+                                            <div class="info-value">{{ profile.phone || 'No especificado' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light p-3 rounded-circle me-3 text-danger">
+                                            <i class="bi bi-geo-alt-fill fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Ubicación</div>
+                                            <div class="info-value">{{ profile.address || 'Abancay, Perú' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h5 class="fw-bold text-dark mb-3">Biografía</h5>
+                            <div class="bio-box">
+                                <i class="bi bi-quote fs-3 d-block text-primary opacity-25 mb-1"></i>
+                                {{ profile.bio || '¡Hola! Soy estudiante de la UNAMBA y uso esta plataforma para comprar y vender materiales de estudio.' }}
+                            </div>
+                        </div>
+
+                        <form *ngIf="activeTab === 'edit'" [formGroup]="formProfile" (ngSubmit)="onSubmit()" class="animate__animated animate__fadeIn">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Nombre</label>
+                                    <input type="text" class="form-control form-control-lg" formControlName="firstName">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Apellido</label>
+                                    <input type="text" class="form-control form-control-lg" formControlName="lastName">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Celular</label>
+                                    <input type="text" class="form-control" formControlName="phone" placeholder="999 999 999">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Dirección</label>
+                                    <input type="text" class="form-control" formControlName="address" placeholder="Ej: Av. Arenas 123">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold small text-muted">Biografía</label>
+                                    <textarea class="form-control" formControlName="bio" rows="4" 
+                                              placeholder="Cuéntanos algo sobre ti..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                <button type="button" class="btn btn-light" (click)="activeTab = 'info'">Cancelar</button>
+                                <button type="submit" class="btn btn-primary px-4" [disabled]="isSaving || formProfile.invalid">
+                                    <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                                    Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
             </div>
-            <div class="skills-tags">
-              <span class="skill-tag">{{ profile.totalProducts }} Productos</span>
-              <span class="skill-tag">{{ profile.totalSales }} Ventas</span>
-              <span class="skill-tag" *ngIf="profile.phone">Verificado</span>
-              <span class="skill-tag" *ngIf="profile.email">Email OK</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Bottom Actions -->
-      <div class="bottom-actions">
-        <div class="action-item">
-          <div class="action-icon">
-            <i class="bi bi-check-circle-fill"></i>
-          </div>
-          <div class="action-text">
-            <strong>Listo para vender</strong>
-            <small>Tus productos están activos</small>
-          </div>
         </div>
-
-        <div class="action-item">
-          <div class="action-icon">
-            <i class="bi bi-share-fill"></i>
-          </div>
-          <div class="action-text">
-            <strong>Compartir productos</strong>
-            <small>Comparte para obtener más visitas</small>
-          </div>
-        </div>
-
-        <div class="action-item">
-          <div class="action-icon">
-            <i class="bi bi-arrow-repeat"></i>
-          </div>
-          <div class="action-text">
-            <strong>Actualizar</strong>
-            <small>Mantén tu perfil actualizado</small>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </div>

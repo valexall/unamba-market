@@ -1,170 +1,105 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Navbar } from '../../component/navbar/navbar';
 import { UserService, UserProfile } from '../../api/user.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, Navbar, ReactiveFormsModule],
   templateUrl: './profile.html',
-  styleUrls: ['./profile.css']
+  styleUrl: './profile.css'
 })
 export class ProfileComponent implements OnInit {
   profile: UserProfile | null = null;
-  isEditing = false;
-  selectedFile: File | null = null;
-  previewUrl: string | null = null;
+  formProfile: FormGroup;
   isLoading = false;
-  errorMessage = '';
-  successMessage = '';
-  private profileLoaded = false; // Flag para evitar cargas múltiples
-
-  // Form data
-  editForm = {
-    firstName: '',
-    lastName: '',
-    phone: '',
-    address: '',
-    bio: ''
-  };
+  isSaving = false;
+  apiUrl = environment.apiUrl;
+  
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
+  activeTab: 'info' | 'edit' = 'info';
 
   constructor(
     private userService: UserService,
-    public router: Router  // Cambiar a public para usarlo en el template
-  ) {}
+    private fb: FormBuilder
+  ) {
+    this.formProfile = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      phone: [''],
+      address: [''],
+      bio: ['']
+    });
+  }
 
-  ngOnInit() {
-    // Verificar si hay token antes de cargar el perfil
-    const token = localStorage.getItem('token');
-    if (!token || token === 'null' || token === 'undefined') {
-      console.warn('No token found, redirecting to login');
-      this.errorMessage = 'Debes iniciar sesión para ver tu perfil';
-      setTimeout(() => {
-        this.router.navigate(['/login']);
-      }, 2000);
-      return;
-    }
+  ngOnInit(): void {
     this.loadProfile();
   }
 
   loadProfile() {
-    // Evitar cargas múltiples
-    if (this.isLoading || this.profileLoaded) {
-      return;
-    }
-    
     this.isLoading = true;
-    this.errorMessage = '';
     this.userService.getProfile().subscribe({
-      next: (response) => {
-        if ((response.code === 'OK' || response.type === 'success') && response.profile) {
-          this.profile = response.profile;
-          this.profileLoaded = true; // Marcar como cargado
-          this.editForm = {
-            firstName: this.profile.firstName || '',
-            lastName: this.profile.lastName || '',
-            phone: this.profile.phone || '',
-            address: this.profile.address || '',
-            bio: this.profile.bio || ''
-          };
-        } else {
-          this.errorMessage = 'No se pudo cargar el perfil';
+      next: (resp) => {
+        if (resp.profile) {
+          this.profile = resp.profile;
+          this.updateForm(this.profile);
+          if (this.profile.profileImage) {
+            this.imagePreview = `${this.apiUrl}/uploads/${this.profile.profileImage}`;
+          }
         }
         this.isLoading = false;
       },
-      error: (error) => {
-        console.error('Error loading profile:', error);
-        
-        // Si es error 403, el usuario no está autenticado
-        if (error.status === 403) {
-          this.errorMessage = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
-          setTimeout(() => {
-            localStorage.removeItem('token');
-            this.router.navigate(['/login']);
-          }, 2000);
-        } else {
-          this.errorMessage = error.error?.listMessage?.[0] || 'Error al cargar el perfil. Intenta nuevamente.';
-        }
-        this.isLoading = false;
-      }
+      error: () => this.isLoading = false
     });
   }
 
-  toggleEdit() {
-    if (this.isEditing) {
-      // Cancel edit, restore original values
-      if (this.profile) {
-        this.editForm = {
-          firstName: this.profile.firstName || '',
-          lastName: this.profile.lastName || '',
-          phone: this.profile.phone || '',
-          address: this.profile.address || '',
-          bio: this.profile.bio || ''
-        };
-      }
-      this.selectedFile = null;
-      this.previewUrl = null;
-    }
-    this.isEditing = !this.isEditing;
-    this.errorMessage = '';
-    this.successMessage = '';
+  updateForm(profile: UserProfile) {
+    this.formProfile.patchValue({
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      phone: profile.phone,
+      address: profile.address,
+      bio: profile.bio
+    });
   }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      
-      // Generate preview
       const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.previewUrl = e.target.result;
-      };
+      reader.onload = () => this.imagePreview = reader.result as string;
       reader.readAsDataURL(file);
     }
   }
 
-  saveProfile() {
-    if (!this.profile) return;
+  onSubmit() {
+    if (this.formProfile.invalid) return;
+    this.isSaving = true;
 
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    this.userService.updateProfile(this.editForm, this.selectedFile || undefined).subscribe({
-      next: (response) => {
-        if (response.code === 'OK' || response.type === 'success') {
-          this.successMessage = 'Perfil actualizado correctamente';
-          this.isEditing = false;
-          this.selectedFile = null;
-          this.previewUrl = null;
-          this.profileLoaded = false; // Permitir recarga después de actualizar
-          this.loadProfile(); // Reload to get updated data
+    this.userService.updateProfile(this.formProfile.value, this.selectedFile || undefined)
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.activeTab = 'info';
+          this.loadProfile(); // Recargar datos frescos
+          // Actualizar nombre en navbar si cambió
+          const newName = this.formProfile.get('firstName')?.value;
+          if (newName) localStorage.setItem('firstName', newName);
+        },
+        error: (err) => {
+          console.error(err);
+          this.isSaving = false;
         }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error updating profile:', error);
-        this.errorMessage = error.error?.listMessage?.[0] || 'Error al actualizar el perfil';
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   getAvatarUrl(): string {
-    if (this.previewUrl) {
-      return this.previewUrl;
-    }
-    if (this.profile?.profileImage) {
-      return `${environment.apiUrl}/uploads/${this.profile.profileImage}`;
-    }
-    return '/assets/no-image.png';
-  }
-
-  goBack() {
-    this.router.navigate(['/home']);
+    return this.imagePreview || 
+           (this.profile?.profileImage ? `${this.apiUrl}/uploads/${this.profile.profileImage}` : 'assets/avatar-placeholder.png');
   }
 }
