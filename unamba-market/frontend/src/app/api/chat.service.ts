@@ -68,7 +68,7 @@ export class ChatService {
         }
       },
       onStompError: (frame) => {
-        console.error('Error STOMP:', frame.headers['message']);
+        // Error en conexión WebSocket
       }
     });
 

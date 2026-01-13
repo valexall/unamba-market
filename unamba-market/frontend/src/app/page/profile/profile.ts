@@ -97,7 +97,6 @@ export class ProfileComponent implements OnInit {
           window.dispatchEvent(new Event('storage')); // Notificar a otros componentes
         },
         error: (err) => {
-          console.error(err);
           this.isSaving = false;
         }
       });

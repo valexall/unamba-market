@@ -93,7 +93,7 @@ export class NotificationService {
         }
       },
       onStompError: (frame) => {
-        console.error('Error STOMP en notificaciones:', frame.headers['message']);
+        // Error en conexión WebSocket de notificaciones
       }
     });
 

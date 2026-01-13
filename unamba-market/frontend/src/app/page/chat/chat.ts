@@ -41,7 +41,6 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
 
     // 2. Escuchar cualquier mensaje nuevo que llegue por el socket
     this.wsSub = this.chatService.getMessageUpdates().subscribe((msg) => {
-      console.log('[CHAT COMPONENT] Notificación recibida:', msg);
       
       // A) Si el mensaje es de la conversación que estoy viendo AHORA MISMO
       if (this.selectedConversation && msg.idConversation === this.selectedConversation.idConversation) {
@@ -76,7 +75,6 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   selectChat(conversation: any) {
-    console.log('[CHAT COMPONENT] Chat seleccionado:', conversation.idConversation);
     this.selectedConversation = conversation;
     this.showMobileChatView = true;
     this.messages = [];
@@ -111,7 +109,9 @@ export class Chat implements OnInit, OnDestroy, AfterViewChecked {
         next: () => {
             this.newMessage = ''; 
         },
-        error: (err) => console.error('Error enviando mensaje', err)
+        error: () => {
+            alert('Error al enviar mensaje');
+        }
     });
   }
 

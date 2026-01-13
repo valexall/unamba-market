@@ -64,7 +64,6 @@ export class ProductDetail implements OnInit {
         }
       },
       error: (err) => {
-        console.error("Error cargando producto", err);
         this.router.navigate(['/home']);
       }
     });
@@ -98,7 +97,6 @@ export class ProductDetail implements OnInit {
               this.router.navigate(['/chat']);
           },
           error: (err) => {
-              console.error('Error al iniciar chat:', err);
               const errorMsg = err.error?.listMessage?.[0] || err.error?.message || "Error al iniciar el chat.";
               alert(errorMsg);
           }

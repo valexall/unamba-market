@@ -222,7 +222,6 @@ export class ProductInsert implements OnInit {
         },
         error: (e) => {
             this.isLoading = false;
-            console.error('Error al publicar producto:', e);
             
             // Si es error 403, el token expiró o no está autenticado
             if (e.status === 403) {

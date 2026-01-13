@@ -63,7 +63,6 @@ export class AuthService {
       this.http.post(`${this.url}/logout`, { refreshToken }).subscribe({
         error: () => {
           // Ignorar errores, el localStorage ya está limpio
-          console.log('Error al revocar token, pero sesión cerrada localmente');
         }
       });
     }
