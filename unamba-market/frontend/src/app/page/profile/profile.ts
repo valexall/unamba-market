@@ -20,6 +20,7 @@ export class ProfileComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  private profileLoaded = false; // Flag para evitar cargas múltiples
 
   // Form data
   editForm = {
@@ -32,21 +33,36 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private router: Router
+    public router: Router  // Cambiar a public para usarlo en el template
   ) {}
 
   ngOnInit() {
+    // Verificar si hay token antes de cargar el perfil
+    const token = localStorage.getItem('token');
+    if (!token || token === 'null' || token === 'undefined') {
+      console.warn('No token found, redirecting to login');
+      this.errorMessage = 'Debes iniciar sesión para ver tu perfil';
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 2000);
+      return;
+    }
     this.loadProfile();
   }
 
   loadProfile() {
+    // Evitar cargas múltiples
+    if (this.isLoading || this.profileLoaded) {
+      return;
+    }
+    
     this.isLoading = true;
     this.errorMessage = '';
     this.userService.getProfile().subscribe({
       next: (response) => {
-        console.log('Profile response:', response);
         if ((response.code === 'OK' || response.type === 'success') && response.profile) {
           this.profile = response.profile;
+          this.profileLoaded = true; // Marcar como cargado
           this.editForm = {
             firstName: this.profile.firstName || '',
             lastName: this.profile.lastName || '',
@@ -54,16 +70,24 @@ export class ProfileComponent implements OnInit {
             address: this.profile.address || '',
             bio: this.profile.bio || ''
           };
-          console.log('Profile loaded:', this.profile);
         } else {
           this.errorMessage = 'No se pudo cargar el perfil';
-          console.error('Invalid response:', response);
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading profile:', error);
-        this.errorMessage = error.error?.listMessage?.[0] || 'Error al cargar el perfil. Por favor, verifica que estés logueado.';
+        
+        // Si es error 403, el usuario no está autenticado
+        if (error.status === 403) {
+          this.errorMessage = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
+          setTimeout(() => {
+            localStorage.removeItem('token');
+            this.router.navigate(['/login']);
+          }, 2000);
+        } else {
+          this.errorMessage = error.error?.listMessage?.[0] || 'Error al cargar el perfil. Intenta nuevamente.';
+        }
         this.isLoading = false;
       }
     });
@@ -117,6 +141,7 @@ export class ProfileComponent implements OnInit {
           this.isEditing = false;
           this.selectedFile = null;
           this.previewUrl = null;
+          this.profileLoaded = false; // Permitir recarga después de actualizar
           this.loadProfile(); // Reload to get updated data
         }
         this.isLoading = false;
@@ -136,7 +161,7 @@ export class ProfileComponent implements OnInit {
     if (this.profile?.profileImage) {
       return `${environment.apiUrl}/uploads/${this.profile.profileImage}`;
     }
-    return 'https://via.placeholder.com/150?text=Usuario';
+    return '/assets/no-image.png';
   }
 
   goBack() {
